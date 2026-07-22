@@ -1,0 +1,57 @@
+version: '3.9'
+
+services:
+  # ── FastAPI service (Python chatbot engine) ─────────────────────────────────
+  fastapi:
+    build:
+      context: ./backend/fastapi
+      dockerfile: Dockerfile
+    container_name: hearconnect-fastapi
+    ports:
+      - "8000:8000"
+    environment:
+      - ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
+      - HOST=0.0.0.0
+      - PORT=8000
+      - ENVIRONMENT=development
+    volumes:
+      - ./backend/fastapi:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+  # ── Node.js API Gateway ─────────────────────────────────────────────────────
+  node-gateway:
+    build:
+      context: ./backend/node
+      dockerfile: Dockerfile
+    container_name: hearconnect-node-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - GATEWAY_PORT=3000
+      - FASTAPI_URL=http://fastapi:8000
+      - FRONTEND_URL=http://localhost:5173
+      - NODE_ENV=development
+    volumes:
+      - ./backend/node:/app
+      - /app/node_modules
+    depends_on:
+      fastapi:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/gateway/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+networks:
+  default:
+    name: hearconnect-network
