@@ -27,6 +27,7 @@ import { Button, LinkButton } from '../components/ui/Button';
 import { sendChatMessage } from '../services/api';
 import { hearingProblems } from '../data/hearingData';
 import { ALL_DISTRICTS } from '../data/indianDistricts';
+import { saveAssessment } from '../services/db';
 
 type Audience = 'myself' | 'child' | 'someone';
 type StepId = 1 | 2 | 3 | 4;
@@ -129,14 +130,23 @@ export function AssessmentPage() {
   const canContinueStep2 =
     form.fullName.trim() && form.district.trim() && form.age.trim() && form.gender.trim();
 
-  // Called when Step 2 "Continue" is clicked — route by age
-  const handleStep2Next = () => {
+  // Called when Step 2 "Continue" is clicked — route by age and save to Supabase
+  const handleStep2Next = async () => {
     const age = parseInt(form.age, 10);
-    if (!isNaN(age) && age < 18) {
-      navigate('/child-care');
-    } else {
-      navigate('/adult-care');
-    }
+    const routedTo = (!isNaN(age) && age < 18) ? 'child-care' : 'adult-care';
+
+    // Save assessment to Supabase (fire-and-forget — don't block navigation)
+    saveAssessment({
+      full_name:  form.fullName,
+      district:   form.district,
+      age:        isNaN(age) ? 0 : age,
+      gender:     form.gender,
+      phone:      form.phone || undefined,
+      audience:   audience ?? undefined,
+      routed_to:  routedTo,
+    }).catch(() => {/* silently ignore — navigation should not depend on DB */});
+
+    navigate(`/${routedTo}`);
   };
 
   return (

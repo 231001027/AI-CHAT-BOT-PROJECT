@@ -5,6 +5,7 @@ import { Send, Bot, User, Sparkles, RotateCcw, WifiOff, Ear, BellRing, CircleDas
 import { sendChatMessage } from '../../services/api';
 import { getQASession } from '../../services/qaSession';
 import { specialTests, generalRecommendations } from '../../data/hearingData';
+import { createChatSession, saveChatMessage as dbSaveMessage } from '../../services/db';
 
 export interface ChatMessage {
   id: number;
@@ -91,6 +92,8 @@ export function ChatPanel({ messages, setMessages, className, compact = false, q
   const [apiError, setApiError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const idRef = useRef(1);
+  // Supabase session id for the current Q&A — created lazily on first user answer
+  const dbSessionIdRef = useRef<string | null>(null);
 
   // Keep id counter in sync when messages are replaced externally (e.g. topic switch)
   useEffect(() => {
@@ -126,31 +129,26 @@ export function ChatPanel({ messages, setMessages, className, compact = false, q
     const nextIndex = answeredIndex + 1;
 
     if (nextIndex < session.questions.length) {
-      // Post the next question after a short delay
       window.setTimeout(() => {
+        const nextQ = session.questions[nextIndex];
         setMessages((prev) => [
           ...prev,
-          {
-            id: idRef.current++,
-            role: 'bot',
-            text: session.questions[nextIndex],
-            qaSession: { topicId, questionIndex: nextIndex },
-          },
+          { id: idRef.current++, role: 'bot', text: nextQ, qaSession: { topicId, questionIndex: nextIndex } },
         ]);
         setTyping(false);
       }, 700);
     } else {
-      // All questions answered → post the summary
+      // All questions answered → post summary
       window.setTimeout(() => {
+        const summaryText = `Thank you for answering all the questions! 🎉\n\nBased on your responses about **${session.topicTitle}**, here are the recommended next steps:`;
         setMessages((prev) => [
           ...prev,
-          {
-            id: idRef.current++,
-            role: 'bot',
-            text: `Thank you for answering all the questions! 🎉\n\nBased on your responses about **${session.topicTitle}**, here are the recommended next steps:`,
-            qaSummary: { topicId },
-          },
+          { id: idRef.current++, role: 'bot', text: summaryText, qaSummary: { topicId } },
         ]);
+        // Save summary message to Supabase
+        if (dbSessionIdRef.current) {
+          dbSaveMessage({ session_id: dbSessionIdRef.current, role: 'bot', message: summaryText });
+        }
         setTyping(false);
       }, 700);
     }
@@ -158,7 +156,7 @@ export function ChatPanel({ messages, setMessages, className, compact = false, q
 
   // ── Send: Q&A mode ─────────────────────────────────────────────────────────
 
-  const sendQAAnswer = (text: string) => {
+  const sendQAAnswer = async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || typing) return;
 
@@ -169,6 +167,29 @@ export function ChatPanel({ messages, setMessages, className, compact = false, q
     setMessages((prev) => [...prev, { id: idRef.current++, role: 'user', text: trimmed }]);
     setInput('');
     setTyping(true);
+
+    // ── Supabase: create session on first answer, then save bot question + user answer ──
+    if (qaTopicId) {
+      const qaSession = getQASession(qaTopicId);
+
+      // Create the DB session row the first time a user answers
+      if (!dbSessionIdRef.current && qaSession) {
+        const sid = await createChatSession({
+          topic_id:    qaTopicId,
+          topic_title: qaSession.topicTitle,
+        });
+        dbSessionIdRef.current = sid;
+      }
+
+      if (dbSessionIdRef.current && lastQAMsg?.qaSession) {
+        const sid = dbSessionIdRef.current;
+        const qi  = lastQAMsg.qaSession.questionIndex;
+        // Save the bot question
+        dbSaveMessage({ session_id: sid, role: 'bot', message: lastQAMsg.text, question_index: qi });
+        // Save the user answer
+        dbSaveMessage({ session_id: sid, role: 'user', message: trimmed, question_index: qi });
+      }
+    }
 
     if (lastQAMsg?.qaSession) {
       advanceQA(lastQAMsg.qaSession.topicId, lastQAMsg.qaSession.questionIndex);
@@ -222,6 +243,7 @@ export function ChatPanel({ messages, setMessages, className, compact = false, q
 
   const reset = () => {
     idRef.current = 1;
+    dbSessionIdRef.current = null;
     setMessages(createInitialMessages());
     setInput('');
     setTyping(false);
