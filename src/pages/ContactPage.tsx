@@ -14,25 +14,42 @@ import {
 import { PageHero } from '../components/ui/PageHero';
 import { Reveal } from '../components/ui/Reveal';
 import { AccentIcon } from '../components/ui/AccentIcon';
+import { submitContactForm } from '../services/api';
 
 const contactCards = [
   { icon: Phone, title: 'Call us', value: '1800-123-456', sub: 'Mon–Sat, 9 AM – 7 PM', accent: 'blue' as const },
-  { icon: Mail, title: 'Email us', value: 'care@hearconnect.ai', sub: 'We reply within 24 hours', accent: 'purple' as const },
+  { icon: Mail, title: 'Email us', value: 'care@niepmd.nic.in', sub: 'We reply within 24 hours', accent: 'purple' as const },
   { icon: MapPin, title: 'Visit us', value: 'Audiology Wing, City Care Hospital', sub: 'Central District, City 001', accent: 'green' as const },
 ];
 
 export function ContactPage() {
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
 
-  const canSend = form.name.trim() && form.email.trim() && form.message.trim();
+  const canSend = form.name.trim() && form.email.trim() && form.message.trim() && !sending;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSend) return;
-    setSent(true);
-    setForm({ name: '', email: '', subject: '', message: '' });
-    window.setTimeout(() => setSent(false), 4000);
+    setSending(true);
+    setError(null);
+    try {
+      await submitContactForm({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        subject: form.subject.trim() || undefined,
+        message: form.message.trim(),
+      });
+      setSent(true);
+      setForm({ name: '', email: '', subject: '', message: '' });
+      window.setTimeout(() => setSent(false), 4000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send message');
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -40,7 +57,7 @@ export function ContactPage() {
       <PageHero
         eyebrow="Contact"
         title="We're here to listen"
-        description="Have a question about hearing care, our pathways, or partnering with HearConnect AI? Reach out — we'd love to help."
+        description="Have a question about hearing care, our pathways, or partnering with NIEPMD Audiology Department? Reach out — we'd love to help."
         crumbs={[{ label: 'Home', to: '/' }, { label: 'Contact' }]}
         accent="blue"
         icon={<MessageSquareHeart size={13} />}
@@ -117,8 +134,14 @@ export function ContactPage() {
                 disabled={!canSend}
                 className="btn-primary mt-6 w-full sm:w-auto"
               >
-                <Send size={16} /> Send message
+                <Send size={16} /> {sending ? 'Sending…' : 'Send message'}
               </button>
+
+              {error && (
+                <p className="mt-4 text-sm text-red-600 dark:text-red-300" role="alert">
+                  {error}
+                </p>
+              )}
 
               {sent && (
                 <motion.div
@@ -127,7 +150,7 @@ export function ContactPage() {
                   className="mt-4 flex items-center gap-2 rounded-xl bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-200 px-4 py-3 text-sm"
                   role="status"
                 >
-                  <CheckCircle2 size={18} /> Thank you! Your message has been recorded (demo only).
+                  <CheckCircle2 size={18} /> Thank you! Your message has been received.
                 </motion.div>
               )}
             </form>

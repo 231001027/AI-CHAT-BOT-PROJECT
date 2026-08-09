@@ -5,13 +5,11 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    color-scheme: light;
   }
   body {
     @apply bg-white text-slate-800 font-sans antialiased;
     line-height: 1.5;
-  }
-  .dark body {
-    @apply bg-slate-950 text-slate-100;
   }
   h1, h2, h3, h4 {
     @apply font-display tracking-tight;
@@ -19,9 +17,6 @@
   }
   :focus-visible {
     @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-white rounded;
-  }
-  .dark :focus-visible {
-    @apply ring-offset-slate-950;
   }
 }
 
@@ -36,13 +31,13 @@
     @apply btn bg-brand-500 text-white shadow-soft hover:bg-brand-600 hover:shadow-card active:scale-[0.98];
   }
   .btn-secondary {
-    @apply btn bg-white text-brand-700 border border-brand-100 hover:border-brand-300 hover:bg-brand-50 shadow-soft dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700 dark:hover:bg-slate-700;
+    @apply btn bg-white text-brand-700 border border-brand-100 hover:border-brand-300 hover:bg-brand-50 shadow-soft;
   }
   .btn-ghost {
-    @apply btn bg-transparent text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800;
+    @apply btn bg-transparent text-slate-700 hover:bg-slate-100;
   }
   .card {
-    @apply rounded-2xl bg-white border border-slate-100 shadow-soft dark:bg-slate-900 dark:border-slate-800;
+    @apply rounded-2xl bg-white border border-slate-100 shadow-soft;
   }
   .chip {
     @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium;
@@ -62,7 +57,7 @@
     height: 6px;
   }
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: rgba(30, 77, 183, 0.3);
-    border-radius: 9999px;
+    background: rgba(30, 77, 183, 0.3);
+    border-radius: 999px;
   }
 }

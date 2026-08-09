@@ -29,9 +29,9 @@ const pillars = [
 ];
 
 const milestones = [
-  { year: '2024', title: 'Concept born', desc: 'HearConnect AI started as an idea to make hearing screening guidance accessible to all.' },
+  { year: '2024', title: 'Concept born', desc: 'NIEPMD Audiology Department started as an idea to make hearing screening guidance accessible to all.' },
   { year: '2025', title: 'Pathways built', desc: 'Adult and child care pathways designed with audiologist-friendly test recommendations.' },
-  { year: '2026', title: 'AI assistant launched', desc: 'A 20-response mock assistant now guides users from concern to recommended care.' },
+  { year: '2026', title: 'AI assistant launched', desc: 'A guided assistant now helps users from concern to recommended care.' },
 ];
 
 export function AboutPage() {
@@ -40,7 +40,7 @@ export function AboutPage() {
       <PageHero
         eyebrow="About us"
         title="Hearing care, made approachable"
-        description="HearConnect AI is an AI-powered hearing assessment assistant built to help hearing-impaired children and adults understand their concerns and find the right next step."
+        description="NIEPMD Audiology Department is an AI-powered hearing Take Test assistant built to help hearing-impaired children and adults understand their concerns and find the right next step."
         crumbs={[{ label: 'Home', to: '/' }, { label: 'About' }]}
         accent="green"
         icon={<HeartHandshake size={13} />}
@@ -56,8 +56,8 @@ export function AboutPage() {
               Connecting every ear to the care it deserves
             </h2>
             <p className="mt-5 text-slate-600 dark:text-slate-300 leading-relaxed">
-              Millions of children and adults live with undiagnosed hearing concerns. HearConnect
-              AI lowers the first barrier — understanding what might be wrong and what to do next —
+              Millions of children and adults live with undiagnosed hearing concerns. NIEPMD
+              Audiology Department lowers the first barrier — understanding what might be wrong and what to do next —
               with a friendly, AI-guided experience that works on any device.
             </p>
             <ul className="mt-6 space-y-2.5">
@@ -107,7 +107,7 @@ export function AboutPage() {
       </section>
 
       <section className="container-page py-16 sm:py-20">
-        <SectionHeading center eyebrow="What we offer" title="Three pillars of HearConnect" />
+        <SectionHeading center eyebrow="What we offer" title="Three pillars of NIEPMD Audiology" />
         <div className="mt-12 grid gap-6 sm:grid-cols-3">
           {pillars.map((p, i) => (
             <Reveal key={p.title} delay={i * 0.08}>
@@ -150,10 +150,10 @@ export function AboutPage() {
             <Target size={28} className="mx-auto" />
             <h2 className="mt-4 text-2xl sm:text-3xl font-bold">Join us in making hearing care accessible</h2>
             <p className="mx-auto mt-3 max-w-xl text-white/85">
-              Try the assessment, explore the pathways, or talk to our AI assistant today.
+              Try the Take Test, explore the pathways, or talk to our AI assistant today.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <LinkButton to="/assessment" variant="secondary" size="lg">Start assessment</LinkButton>
+              <LinkButton to="/take-test" variant="secondary" size="lg">Take Test</LinkButton>
               <LinkButton to="/contact" variant="secondary" size="lg">Contact us</LinkButton>
             </div>
           </div>

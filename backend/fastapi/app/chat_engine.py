@@ -1,0 +1,210 @@
+"""
+Keyword-rule chat engine for HearConnect AI.
+
+Matches user messages against a curated set of hearing-care rules and returns
+a contextual response plus follow-up suggestions. No external LLM required.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+
+
+@dataclass
+class ChatRule:
+    keywords: list[str]
+    response: str
+    followups: list[str] = field(default_factory=list)
+
+
+CHAT_RULES: list[ChatRule] = [
+    ChatRule(
+        keywords=["child", "kid", "baby", "son", "daughter", "infant"],
+        response=(
+            "This could indicate hearing loss in your child. We recommend scheduling a hearing "
+            "assessment with a paediatric audiologist. Early detection greatly improves speech "
+            "and language development outcomes."
+        ),
+        followups=["Book a child assessment", "Learn about OAE test", "Speech delay concerns"],
+    ),
+    ChatRule(
+        keywords=["not responding", "respond", "no response", "doesn't respond", "ignore"],
+        response=(
+            "Not responding to sounds is an important early sign. If this happens repeatedly, "
+            "a hearing screening (OAE / ABR) is strongly recommended to rule out hearing loss."
+        ),
+        followups=["What is OAE?", "What is ABR?", "Schedule screening"],
+    ),
+    ChatRule(
+        keywords=["ringing", "buzzing", "hissing", "tinnitus"],
+        response=(
+            "Ringing or buzzing in the ears is called tinnitus. It is often linked to noise "
+            "exposure, stress, or inner-ear changes. An audiologist can assess severity and "
+            "suggest management strategies."
+        ),
+        followups=["Tinnitus management tips", "Book tinnitus assessment"],
+    ),
+    ChatRule(
+        keywords=["dizzy", "dizziness", "vertigo", "spinning", "balance", "walking"],
+        response=(
+            "Dizziness and balance issues may relate to the inner ear. Tests such as VNG and VEMP "
+            "help evaluate vestibular function. Please consult an ENT specialist if symptoms are "
+            "severe or sudden."
+        ),
+        followups=["What is VNG?", "Balance assessment"],
+    ),
+    ChatRule(
+        keywords=["pain", "ear pain", "ache", "discharge", "fluid", "infection"],
+        response=(
+            "Ear pain with discharge often signals an ear infection. Keep the ear dry and see an "
+            "ENT specialist promptly. Tympanometry can confirm whether fluid is present behind the "
+            "eardrum."
+        ),
+        followups=["Find ENT specialist", "What is tympanometry?"],
+    ),
+    ChatRule(
+        keywords=["muffled", "can't hear", "cannot hear", "hearing loss", "asking repeat", "repeat"],
+        response=(
+            "Difficulty hearing or asking others to repeat may indicate hearing loss. A Pure Tone "
+            "Audiometry (PTA) test is the first step to measure your hearing thresholds accurately."
+        ),
+        followups=["What is PTA?", "Book hearing test"],
+    ),
+    ChatRule(
+        keywords=["hearing aid", "aid", "device", "amplification"],
+        response=(
+            "Hearing aids can significantly improve quality of life. An audiologist will recommend "
+            "the right type based on your hearing loss severity, lifestyle, and budget."
+        ),
+        followups=["Types of hearing aids", "Hearing aid maintenance"],
+    ),
+    ChatRule(
+        keywords=["cochlear", "implant"],
+        response=(
+            "Cochlear implants are an option for severe to profound hearing loss where hearing aids "
+            "provide limited benefit. A thorough evaluation by a cochlear implant team is required."
+        ),
+        followups=["Cochlear implant evaluation", "Candidacy criteria"],
+    ),
+    ChatRule(
+        keywords=["speech", "delay", "talking", "talk", "language"],
+        response=(
+            "Delayed speech can be related to hearing difficulties. We recommend a combined hearing "
+            "and speech-language assessment to identify the cause and start early intervention."
+        ),
+        followups=["Speech therapy options", "Book speech assessment"],
+    ),
+    ChatRule(
+        keywords=["noise", "loud", "concert", "workplace", "earmuffs", "earplugs"],
+        response=(
+            "Noise exposure is a leading cause of preventable hearing loss. Always use ear "
+            "protection in loud environments and limit listening volumes to safe levels (below 80 dB)."
+        ),
+        followups=["Hearing protection tips", "Safe listening levels"],
+    ),
+    ChatRule(
+        keywords=["newborn", "0-6", "nicu", "screening"],
+        response=(
+            "Newborn hearing screening is recommended within the first month. OAE and ABR are "
+            "painless tests done while the baby sleeps. Early screening enables timely intervention."
+        ),
+        followups=["Newborn screening details", "What is ABR?"],
+    ),
+    ChatRule(
+        keywords=["school", "academic", "class", "teacher", "grades"],
+        response=(
+            "Hearing issues can affect academic performance. A school-age hearing test "
+            "(PTA + Speech Audiometry) can identify whether hearing is contributing to learning "
+            "difficulties."
+        ),
+        followups=["School-age assessment", "Classroom strategies"],
+    ),
+    ChatRule(
+        keywords=["sleep", "insomnia", "tinnitus sleep"],
+        response=(
+            "Tinnitus can disturb sleep. Sound therapy, relaxation techniques, and quiet background "
+            "noise at bedtime often help. Please discuss persistent sleep issues with your audiologist."
+        ),
+        followups=["Tinnitus management", "Sound therapy"],
+    ),
+    ChatRule(
+        keywords=["stress", "anxiety", "worried", "depressed"],
+        response=(
+            "Stress can worsen tinnitus and perceived hearing difficulties. Counselling, mindfulness, "
+            "and hearing therapy together can provide meaningful relief."
+        ),
+        followups=["Counselling services", "Stress reduction tips"],
+    ),
+    ChatRule(
+        keywords=["blockage", "blocked", "wax", "earwax", "plugged"],
+        response=(
+            "A blocked sensation is often caused by earwax build-up. Avoid inserting cotton buds — "
+            "an ENT or audiologist can safely remove wax and check the eardrum."
+        ),
+        followups=["Safe ear care", "Book ear cleaning"],
+    ),
+    ChatRule(
+        keywords=["surgery", "operation", "mastoid", "tube", "grommet"],
+        response=(
+            "If you have had previous ear surgery, share the details with your audiologist. It "
+            "affects which tests are suitable and the interpretation of your results."
+        ),
+        followups=["Pre-surgery hearing test", "Post-surgery follow-up"],
+    ),
+    ChatRule(
+        keywords=["fever", "temperature", "sick"],
+        response=(
+            "Fever alongside ear symptoms may indicate an active infection. Please consult a doctor "
+            "promptly, especially in young children, to prevent complications."
+        ),
+        followups=["Find ENT specialist", "When to seek urgent care"],
+    ),
+    ChatRule(
+        keywords=["family", "history", "genetic", "hereditary"],
+        response=(
+            "A family history of hearing loss increases risk. A baseline hearing test is recommended, "
+            "and periodic monitoring helps detect changes early."
+        ),
+        followups=["Book baseline test", "Genetic counselling"],
+    ),
+    ChatRule(
+        keywords=["hyperacusis", "sensitive", "too loud", "painful sound"],
+        response=(
+            "Hyperacusis is increased sensitivity to everyday sounds. Sound therapy and gradual "
+            "exposure under an audiologist can help desensitise and improve comfort."
+        ),
+        followups=["What is LDL test?", "Hyperacusis management"],
+    ),
+    ChatRule(
+        keywords=["hello", "hi", "hey", "start", "help"],
+        response=(
+            "Hello! I'm the NIEPMD Audiology assistant. I can help you understand hearing-related concerns and "
+            "suggest next steps. Could you describe the problem you or your child are experiencing?"
+        ),
+        followups=["Hearing difficulty", "Ringing in ears", "Child hearing concern"],
+    ),
+]
+
+DEFAULT_RESPONSE = ChatRule(
+    keywords=[],
+    response=(
+        "Thanks for sharing that. Based on what you've described, I recommend booking a professional "
+        "hearing assessment. Could you tell me a bit more about when the symptoms started and which "
+        "ear is affected?"
+    ),
+    followups=["Book an assessment", "Talk to an audiologist"],
+)
+
+
+def find_response(text: str) -> ChatRule:
+    """Return the first matching rule, or the default."""
+    lowered = text.lower()
+    for rule in CHAT_RULES:
+        if any(k in lowered for k in rule.keywords):
+            return rule
+    return DEFAULT_RESPONSE
+
+
+def match_keywords(text: str, rule: ChatRule) -> list[str]:
+    lowered = text.lower()
+    return [k for k in rule.keywords if k in lowered]

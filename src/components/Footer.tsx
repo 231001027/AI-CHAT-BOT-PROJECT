@@ -16,7 +16,7 @@ import { Logo } from './ui/Logo';
 
 const quickLinks = [
   { label: 'Home', to: '/' },
-  { label: 'Start Assessment', to: '/assessment' },
+  { label: 'Take Test', to: '/take-test' },
   { label: 'Adult Care', to: '/adult-care' },
   { label: 'Child Care', to: '/child-care' },
   { label: 'AI Assistant', to: '/ai-assistant' },
@@ -25,7 +25,7 @@ const quickLinks = [
 const resourceLinks = [
   { label: 'Hearing Tests Explained', to: '/adult-care' },
   { label: 'Child Hearing Milestones', to: '/child-care' },
-  { label: 'About HearConnect', to: '/about' },
+  { label: 'About NIEPMD', to: '/about' },
   { label: 'Contact Us', to: '/contact' },
 ];
 
@@ -45,7 +45,7 @@ export function Footer() {
           <div className="lg:col-span-4">
             <Logo />
             <p className="mt-4 text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-sm">
-              An AI-powered hearing assessment assistant helping children and adults identify
+              An AI-powered hearing Take Test assistant helping children and adults identify
               hearing-related concerns and connect with the right care.
             </p>
             <div className="mt-5 flex items-center gap-2">
@@ -110,7 +110,7 @@ export function Footer() {
               <ul className="mt-4 space-y-2 text-sm text-slate-600 dark:text-slate-300">
                 <li className="flex items-center gap-2">
                   <Mail size={15} className="text-brand-500" />
-                  care@hearconnect.ai
+                  care@niepmd.nic.in
                 </li>
                 <li className="flex items-center gap-2">
                   <MapPin size={15} className="text-brand-500" />
@@ -127,7 +127,7 @@ export function Footer() {
 
         <div className="mt-12 pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            © {new Date().getFullYear()} HearConnect AI. All rights reserved.
+            © {new Date().getFullYear()} NIEPMD Audiology and Speech. All rights reserved.
           </p>
           <p className="text-xs text-slate-500 dark:text-slate-400 inline-flex items-center gap-1.5">
             Made with <Heart size={12} className="text-pink-500 fill-pink-500" /> for hearing care

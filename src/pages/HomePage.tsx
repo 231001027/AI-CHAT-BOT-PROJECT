@@ -4,14 +4,12 @@ import {
   Sparkles,
   MessageSquareHeart,
   ScanSearch,
-  HeartHandshake,
   Baby,
   ShieldCheck,
   ArrowRight,
   Stethoscope,
   Volume2,
   Brain,
-  Ear,
   CheckCircle2,
   Star,
   Users,
@@ -26,7 +24,7 @@ import { hearingProblems } from '../data/hearingData';
 const features = [
   { title: 'Early Detection', icon: ScanSearch, accent: 'blue' as const, desc: 'Spot hearing concerns early, when intervention works best.' },
   { title: 'Better Communication', icon: MessageSquareHeart, accent: 'purple' as const, desc: 'Guidance that improves how you connect and converse.' },
-  { title: 'Child Friendly', icon: Baby, accent: 'green' as const, desc: 'Calm, age-aware assessments designed for little ones.' },
+  { title: 'Child Friendly', icon: Baby, accent: 'green' as const, desc: 'Calm, age-aware Take Tests designed for little ones.' },
   { title: 'AI Guidance', icon: Sparkles, accent: 'blue' as const, desc: 'Instant, personalised next steps from our AI assistant.' },
 ];
 
@@ -64,27 +62,37 @@ function Hero() {
       <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-brand-500/10 blur-3xl" aria-hidden="true" />
       <div className="absolute -left-24 top-40 h-72 w-72 rounded-full bg-purple-500/10 blur-3xl" aria-hidden="true" />
 
-      <div className="container-page relative grid items-center gap-12 py-16 lg:grid-cols-2 lg:py-24">
+      <div className="container-page relative max-w-3xl py-16 lg:py-24">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
-          <span className="chip bg-white text-brand-700 border border-brand-100 shadow-soft dark:bg-slate-800 dark:text-brand-300 dark:border-slate-700">
+          <span className="chip bg-white text-brand-700 border border-brand-100 shadow-soft">
             <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
             AI-powered hearing care
           </span>
-          <h1 className="mt-5 text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white text-balance leading-[1.1]">
-            Welcome to <span className="bg-gradient-to-r from-brand-600 via-brand-500 to-purple-500 bg-clip-text text-transparent">HearConnect AI</span>
-          </h1>
+          <div className="mt-5 flex flex-col gap-5 sm:flex-row sm:items-center">
+            <img
+              src="/niepmd-logo.png"
+              alt="NIEPMD logo"
+              className="h-20 w-auto shrink-0 object-contain sm:h-24 lg:h-28"
+            />
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 text-balance leading-[1.15]">
+              Welcome to{' '}
+              <span className="bg-gradient-to-r from-brand-600 via-brand-500 to-purple-500 bg-clip-text text-transparent">
+                NIEPMD Audiology Department
+              </span>
+            </h1>
+          </div>
           <p className="mt-5 text-lg sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
-            An AI-powered hearing assessment assistant helping children and adults identify
+            An AI-powered hearing Take Test assistant helping children and adults identify
             hearing-related concerns.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <LinkButton to="/assessment" size="lg" aria-label="Start assessment">
+            <LinkButton to="/take-test" size="lg" aria-label="Take Test">
               <Sparkles size={18} />
-              Start Assessment
+              Take Test
             </LinkButton>
             <LinkButton to="/ai-assistant" variant="secondary" size="lg" aria-label="Talk to AI">
               <MessageSquareHeart size={18} />
@@ -103,89 +111,8 @@ function Hero() {
             </span>
           </div>
         </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.94 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-          className="relative"
-        >
-          <HeroIllustration />
-        </motion.div>
       </div>
     </section>
-  );
-}
-
-function HeroIllustration() {
-  return (
-    <div className="relative mx-auto aspect-square w-full max-w-lg">
-      {/* central gradient orb */}
-      <div className="absolute inset-6 rounded-[2.5rem] bg-gradient-to-br from-brand-500 via-brand-600 to-purple-600 opacity-90 shadow-card-hover" aria-hidden="true" />
-      <div className="absolute inset-6 rounded-[2.5rem] bg-grid-light opacity-20" aria-hidden="true" />
-
-      {/* sound waves */}
-      <div className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
-        {[0, 1, 2, 3].map((i) => (
-          <motion.span
-            key={i}
-            className="absolute rounded-full border border-white/30"
-            style={{ width: `${40 + i * 18}%`, height: `${40 + i * 18}%` }}
-            animate={{ scale: [1, 1.06, 1], opacity: [0.5, 0.2, 0.5] }}
-            transition={{ duration: 4, repeat: Infinity, delay: i * 0.4 }}
-          />
-        ))}
-      </div>
-
-      {/* floating tiles */}
-      <FloatTile className="left-0 top-6" delay={0} accent="blue" icon={<Baby size={20} />} label="Child with hearing aid" />
-      <FloatTile className="right-0 top-16" delay={0.6} accent="purple" icon={<Brain size={20} />} label="AI chatbot" />
-      <FloatTile className="left-2 bottom-16" delay={1.2} accent="green" icon={<Stethoscope size={20} />} label="Audiologist" />
-      <FloatTile className="right-2 bottom-6" delay={1.8} accent="blue" icon={<HeartHandshake size={20} />} label="Happy family" />
-
-      {/* center emblem */}
-      <motion.div
-        animate={{ y: [0, -10, 0] }}
-        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute inset-0 flex items-center justify-center"
-      >
-        <span className="flex h-28 w-28 items-center justify-center rounded-3xl bg-white/95 shadow-glow">
-          <Ear size={56} className="text-brand-600" strokeWidth={2.2} />
-        </span>
-      </motion.div>
-    </div>
-  );
-}
-
-function FloatTile({
-  className,
-  delay,
-  accent,
-  icon,
-  label,
-}: {
-  className: string;
-  delay: number;
-  accent: 'blue' | 'purple' | 'green';
-  icon: React.ReactNode;
-  label: string;
-}) {
-  const styles = {
-    blue: 'bg-brand-50 text-brand-600 dark:bg-brand-900/50 dark:text-brand-200',
-    purple: 'bg-purple-50 text-purple-600 dark:bg-purple-900/50 dark:text-purple-200',
-    green: 'bg-green-50 text-green-600 dark:bg-green-900/50 dark:text-green-200',
-  };
-  return (
-    <motion.div
-      animate={{ y: [0, -12, 0] }}
-      transition={{ duration: 5, repeat: Infinity, delay, ease: 'easeInOut' }}
-      className={`absolute ${className} flex items-center gap-2 rounded-2xl bg-white/95 dark:bg-slate-800/95 shadow-card px-3 py-2 backdrop-blur`}
-    >
-      <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${styles[accent]}`} aria-hidden="true">
-        {icon}
-      </span>
-      <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 pr-1">{label}</span>
-    </motion.div>
   );
 }
 
@@ -194,9 +121,9 @@ function FeaturesSection() {
     <section className="container-page py-16 sm:py-20">
       <SectionHeading
         center
-        eyebrow="Why HearConnect"
+        eyebrow="Why NIEPMD Audiology"
         title="Care that listens first"
-        description="Four principles guide every assessment and every conversation on HearConnect AI."
+        description="Four principles guide every Take Test and every conversation at NIEPMD Audiology Department."
       />
       <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {features.map((f, i) => (
@@ -238,7 +165,7 @@ function HowItWorks() {
         center
         eyebrow="How it works"
         title="A clear path from concern to care"
-        description="Our guided assessment takes you from a first question to a personalised recommendation in minutes."
+        description="Our guided Take Test takes you from a first question to a personalised recommendation in minutes."
       />
       <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {steps.map((s, i) => (
@@ -292,14 +219,14 @@ function ProblemsPreview() {
           ))}
           <Reveal delay={0.3}>
             <Link
-              to="/assessment"
+              to="/take-test"
               className="group flex h-full flex-col justify-center items-center gap-3 rounded-2xl border-2 border-dashed border-brand-200 bg-brand-50/50 p-6 text-center hover:bg-brand-50 dark:border-brand-900 dark:bg-brand-900/20 dark:hover:bg-brand-900/30 transition-colors"
             >
               <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-600 text-white">
                 <Sparkles size={26} />
               </span>
               <p className="text-base font-semibold text-brand-700 dark:text-brand-300">Not sure where to start?</p>
-              <p className="text-sm text-slate-600 dark:text-slate-400">Take the full guided assessment</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400">Take the full guided Take Test</p>
             </Link>
           </Reveal>
         </div>
@@ -328,9 +255,9 @@ function CTASection() {
               caring guidance.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <LinkButton to="/assessment" size="lg">
+              <LinkButton to="/take-test" size="lg">
                 <Sparkles size={18} />
-                Start Assessment
+                Take Test
               </LinkButton>
               <LinkButton to="/contact" variant="secondary" size="lg">
                 <Activity size={18} />

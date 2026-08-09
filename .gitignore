@@ -28,8 +28,16 @@ backend/**/__pycache__/
 backend/**/*.pyc
 backend/**/*.pyo
 
+# Local SQLite database (legacy HearConnect)
+backend/fastapi/data/
+
+# NIPMED backend
+backend/.venv/
+backend/**/__pycache__/
+backend/.pytest_cache/
+backend/data/reports/
+backend/data/hospital_documents/
+backend/data/**/.DS_Store
+
 # Node backend modules
 backend/node/node_modules/
-
-# Test scripts
-scripts/test_api.py

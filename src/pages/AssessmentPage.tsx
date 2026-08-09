@@ -126,25 +126,40 @@ export function AssessmentPage() {
   const [step, setStep] = useState<StepId>(1);
   const [audience, setAudience] = useState<Audience | null>(null);
   const [form, setForm] = useState<FormData>(emptyForm);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const canContinueStep2 =
     form.fullName.trim() && form.district.trim() && form.age.trim() && form.gender.trim();
 
-  // Called when Step 2 "Continue" is clicked — route by age and save to Supabase
+  // Called when Step 2 "Continue" is clicked — save via API then route by age
   const handleStep2Next = async () => {
     const age = parseInt(form.age, 10);
-    const routedTo = (!isNaN(age) && age < 18) ? 'child-care' : 'adult-care';
+    const routedTo = (!isNaN(age) && age < 13) ? 'child-care' : 'adult-care';
 
-    // Save assessment to Supabase (fire-and-forget — don't block navigation)
-    saveAssessment({
-      full_name:  form.fullName,
-      district:   form.district,
-      age:        isNaN(age) ? 0 : age,
-      gender:     form.gender,
-      phone:      form.phone || undefined,
-      audience:   audience ?? undefined,
-      routed_to:  routedTo,
-    }).catch(() => {/* silently ignore — navigation should not depend on DB */});
+    setSaving(true);
+    setSaveError(null);
+
+    try {
+      const id = await saveAssessment({
+        full_name:  form.fullName,
+        district:   form.district,
+        age:        isNaN(age) ? 0 : age,
+        gender:     form.gender,
+        phone:      form.phone || undefined,
+        audience:   audience ?? undefined,
+        routed_to:  routedTo,
+      });
+      if (!id) throw new Error('No id returned from API');
+      console.log('[api] assessment saved, id =', id);
+    } catch (err) {
+      // Log but don't block — user should still proceed
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('[api] saveAssessment failed:', msg);
+      setSaveError(msg);
+    } finally {
+      setSaving(false);
+    }
 
     navigate(`/${routedTo}`);
   };
@@ -152,10 +167,10 @@ export function AssessmentPage() {
   return (
     <>
       <PageHero
-        eyebrow="Guided assessment"
+        eyebrow="Guided Take Test"
         title="Let's find the right care pathway"
         description="Answer three short steps and our AI assistant will suggest the most relevant hearing tests and next steps."
-        crumbs={[{ label: 'Home', to: '/' }, { label: 'Assessment' }]}
+        crumbs={[{ label: 'Home', to: '/' }, { label: 'Take Test' }]}
         icon={<Sparkles size={13} />}
       />
 
@@ -379,17 +394,17 @@ function Step2({
           />
           {form.age && !isNaN(parseInt(form.age, 10)) && (
             <p className={`mt-1.5 flex items-center gap-1.5 text-xs font-medium ${
-              parseInt(form.age, 10) < 18
+              parseInt(form.age, 10) < 13
                 ? 'text-purple-600 dark:text-purple-300'
                 : 'text-blue-600 dark:text-blue-300'
             }`}>
-              {parseInt(form.age, 10) < 18 ? (
+              {parseInt(form.age, 10) < 13 ? (
                 <>
-                  <Baby size={12} /> Under 18 — you'll be directed to the Child Care page
+                  <Baby size={12} /> Under 13 — you'll be directed to the Child Care page
                 </>
               ) : (
                 <>
-                  <User size={12} /> 18 or above — you'll be directed to the Adult Care page
+                  <User size={12} /> 13 or above — you'll be directed to the Adult Care page
                 </>
               )}
             </p>
@@ -475,7 +490,7 @@ function Step3({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
             <Bot size={18} />
           </span>
           <div className="flex-1">
-            <p className="text-sm font-semibold leading-none">HearConnect AI</p>
+            <p className="text-sm font-semibold leading-none">NIEPMD Audiology and Speech</p>
             <p className="mt-1 text-xs text-white/80 flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-green-400" /> Listening
             </p>
@@ -641,7 +656,7 @@ function Step4({ audience, form, onRestart }: { audience: Audience | null; form:
           {form.gender && <SummaryRow label="Gender" value={form.gender} />}
         </div>
         <p className="mt-4 text-xs text-slate-400">
-          Note: HearConnect AI provides guidance only and is not a medical diagnosis.
+          Note: NIEPMD Audiology Department provides guidance only and is not a medical diagnosis.
         </p>
       </div>
 

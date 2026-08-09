@@ -92,12 +92,13 @@ export function ChatPanel({ messages, setMessages, className, compact = false, q
   const [apiError, setApiError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const idRef = useRef(1);
-  // Supabase session id for the current Q&A — created lazily on first user answer
+  // API session id for the current Q&A — created lazily on first user answer
   const dbSessionIdRef = useRef<string | null>(null);
 
   // Keep id counter in sync when messages are replaced externally (e.g. topic switch)
   useEffect(() => {
     const maxId = messages.reduce((m, msg) => Math.max(m, msg.id), 0);
+
     idRef.current = maxId + 1;
   }, [messages]);
 

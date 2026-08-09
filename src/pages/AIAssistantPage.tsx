@@ -99,8 +99,8 @@ export function AIAssistantPage() {
   return (
     <>
       <PageHero
-        eyebrow={session ? `${session.topicTitle} assessment` : 'AI assistant'}
-        title={session ? `${session.topicTitle} — Q&A` : 'Talk to HearConnect AI'}
+        eyebrow={session ? `${session.topicTitle} Take Test` : 'AI assistant'}
+        title={session ? `${session.topicTitle} — Q&A` : 'Talk to NIEPMD Audiology'}
         description={
           session
             ? `Answer a few guided questions about your ${session.topicTitle.toLowerCase()} concern and get personalised next steps.`
@@ -131,7 +131,7 @@ export function AIAssistantPage() {
                   <Bot size={18} />
                 </span>
                 <div className="flex-1">
-                  <p className="text-sm font-semibold leading-none">HearConnect AI</p>
+                  <p className="text-sm font-semibold leading-none">NIEPMD Audiology and Speech</p>
                   <p className="mt-1 text-xs text-white/80 flex items-center gap-1.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
                     {session ? `Guided Q&A · ${session.topicTitle}` : 'Online · AI assistant'}

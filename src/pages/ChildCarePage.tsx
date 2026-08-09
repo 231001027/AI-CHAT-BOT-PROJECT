@@ -148,11 +148,11 @@ export function ChildCarePage() {
             <Heart size={28} className="mx-auto" />
             <h2 className="mt-4 text-2xl sm:text-3xl font-bold">We are here to help!</h2>
             <p className="mx-auto mt-3 max-w-xl text-white/85">
-              Early action makes a big difference. Start a guided assessment or talk to our AI assistant.
+              Early action makes a big difference. Start a guided Take Test or talk to our AI assistant.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <LinkButton to="/assessment" variant="secondary" size="lg">
-                Start assessment <ArrowRight size={16} />
+              <LinkButton to="/take-test" variant="secondary" size="lg">
+                Take Test <ArrowRight size={16} />
               </LinkButton>
               <Link to="/adult-care" className="btn bg-white/10 text-white hover:bg-white/20">
                 Adult Care <ArrowRight size={16} />
@@ -228,7 +228,7 @@ function RecommendationsGrid() {
         center
         eyebrow="Possible recommendations"
         title="What might come next"
-        description="Depending on the assessment results, your audiologist may suggest one or more of the following."
+        description="Depending on the Take Test results, your audiologist may suggest one or more of the following."
       />
       <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {childRecommendations.map((r, i) => (

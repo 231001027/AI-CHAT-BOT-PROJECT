@@ -8,8 +8,8 @@ export const chatResponses: ChatResponse[] = [
   {
     keywords: ['child', 'kid', 'baby', 'son', 'daughter', 'infant'],
     response:
-      'This could indicate hearing loss in your child. We recommend scheduling a hearing assessment with a paediatric audiologist. Early detection greatly improves speech and language development outcomes.',
-    followups: ['Book a child assessment', 'Learn about OAE test', 'Speech delay concerns'],
+      'This could indicate hearing loss in your child. We recommend scheduling a hearing Take Test with a paediatric audiologist. Early detection greatly improves speech and language development outcomes.',
+    followups: ['Book a child Take Test', 'Learn about OAE test', 'Speech delay concerns'],
   },
   {
     keywords: ['not responding', 'respond', 'no response', "doesn't respond", 'ignore'],
@@ -21,13 +21,13 @@ export const chatResponses: ChatResponse[] = [
     keywords: ['ringing', 'buzzing', 'hissing', 'tinnitus'],
     response:
       'Ringing or buzzing in the ears is called tinnitus. It is often linked to noise exposure, stress, or inner-ear changes. An audiologist can assess severity and suggest management strategies.',
-    followups: ['Tinnitus management tips', 'Book tinnitus assessment'],
+    followups: ['Tinnitus management tips', 'Book tinnitus Take Test'],
   },
   {
     keywords: ['dizzy', 'dizziness', 'vertigo', 'spinning', 'balance', 'walking'],
     response:
       'Dizziness and balance issues may relate to the inner ear. Tests such as VNG and VEMP help evaluate vestibular function. Please consult an ENT specialist if symptoms are severe or sudden.',
-    followups: ['What is VNG?', 'Balance assessment'],
+    followups: ['What is VNG?', 'Balance Take Test'],
   },
   {
     keywords: ['pain', 'ear pain', 'ache', 'discharge', 'fluid', 'infection'],
@@ -56,8 +56,8 @@ export const chatResponses: ChatResponse[] = [
   {
     keywords: ['speech', 'delay', 'talking', 'talk', 'language'],
     response:
-      'Delayed speech can be related to hearing difficulties. We recommend a combined hearing and speech-language assessment to identify the cause and start early intervention.',
-    followups: ['Speech therapy options', 'Book speech assessment'],
+      'Delayed speech can be related to hearing difficulties. We recommend a combined hearing and speech-language Take Test to identify the cause and start early intervention.',
+    followups: ['Speech therapy options', 'Book speech Take Test'],
   },
   {
     keywords: ['noise', 'loud', 'concert', 'workplace', 'earmuffs', 'earplugs'],
@@ -75,7 +75,7 @@ export const chatResponses: ChatResponse[] = [
     keywords: ['school', 'academic', 'class', 'teacher', 'grades'],
     response:
       'Hearing issues can affect academic performance. A school-age hearing test (PTA + Speech Audiometry) can identify whether hearing is contributing to learning difficulties.',
-    followups: ['School-age assessment', 'Classroom strategies'],
+    followups: ['School-age Take Test', 'Classroom strategies'],
   },
   {
     keywords: ['sleep', 'insomnia', 'tinnitus sleep'],
@@ -122,7 +122,7 @@ export const chatResponses: ChatResponse[] = [
   {
     keywords: ['hello', 'hi', 'hey', 'start', 'help', 'default'],
     response:
-      "Hello! I'm HearConnect AI. I can help you understand hearing-related concerns and suggest next steps. Could you describe the problem you or your child are experiencing?",
+      "Hello! I'm the NIEPMD Audiology assistant. I can help you understand hearing-related concerns and suggest next steps. Could you describe the problem you or your child are experiencing?",
     followups: ['Hearing difficulty', 'Ringing in ears', 'Child hearing concern'],
   },
 ];
@@ -130,8 +130,8 @@ export const chatResponses: ChatResponse[] = [
 export const defaultResponse: ChatResponse = {
   keywords: [],
   response:
-    "Thanks for sharing that. Based on what you've described, I recommend booking a professional hearing assessment. Could you tell me a bit more about when the symptoms started and which ear is affected?",
-  followups: ['Book an assessment', 'Talk to an audiologist'],
+    "Thanks for sharing that. Based on what you've described, I recommend booking a professional hearing Take Test. Could you tell me a bit more about when the symptoms started and which ear is affected?",
+  followups: ['Book a Take Test', 'Talk to an audiologist'],
 };
 
 export function findResponse(input: string): ChatResponse {

@@ -338,8 +338,8 @@ function FinalCTA() {
             Let our AI assistant guide you through a few questions and recommend the right tests for your concern.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <LinkButton to="/assessment" variant="secondary" size="lg">
-              Start assessment <ArrowRight size={16} />
+            <LinkButton to="/take-test" variant="secondary" size="lg">
+              Take Test <ArrowRight size={16} />
             </LinkButton>
             <Link to="/child-care" className="btn bg-white/10 text-white hover:bg-white/20">
               Child Care <ArrowRight size={16} />

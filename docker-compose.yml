@@ -1,57 +1,134 @@
-version: '3.9'
+name: niepmd-audiology
 
 services:
-  # ── FastAPI service (Python chatbot engine) ─────────────────────────────────
-  fastapi:
+  # ── PostgreSQL: the clinical system of record ────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: niepmd-postgres
+    environment:
+      POSTGRES_USER: nipmed
+      POSTGRES_PASSWORD: nipmed
+      POSTGRES_DB: nipmed
+    ports:
+      # Host port 55432 on purpose: this machine already runs PostgreSQL on 5432
+      # (and something on 5433), and that install would silently shadow this
+      # container for any tool connecting to localhost. Inside the compose
+      # network the API still uses postgres:5432.
+      - "55432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nipmed -d nipmed"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  # ── Redis: chat session state ───────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: niepmd-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # ── Qdrant: RAG vector store for the AI Treatment Assistant only ────────────
+  # Deliberately not a dependency of the API. Registration, questionnaire and
+  # recommendations must keep working when this is down; the assistant falls back
+  # to admin-authored static explanations.
+  qdrant:
+    image: qdrant/qdrant:v1.12.4
+    container_name: niepmd-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    restart: unless-stopped
+
+  # ── FastAPI backend ─────────────────────────────────────────────────────────
+  api:
     build:
-      context: ./backend/fastapi
+      context: ./backend
       dockerfile: Dockerfile
-    container_name: hearconnect-fastapi
+    container_name: niepmd-api
     ports:
       - "8000:8000"
     environment:
-      - ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
-      - HOST=0.0.0.0
-      - PORT=8000
-      - ENVIRONMENT=development
+      PYTHONPATH: /app
+      ENVIRONMENT: development
+      DEBUG: "true"
+      HOST: 0.0.0.0
+      PORT: "8000"
+      DATABASE_URL: postgresql+asyncpg://nipmed:nipmed@postgres:5432/nipmed
+      REDIS_URL: redis://redis:6379/0
+      QDRANT_URL: http://qdrant:6333
+      CORS_ORIGINS: http://localhost:5173,http://localhost:3000
+      # Local, in-process embeddings — no API key needed. Switch to openai or
+      # voyage and supply the matching key if you prefer a hosted model.
+      EMBEDDING_PROVIDER: fastembed
+      EMBEDDING_MODEL: BAAI/bge-small-en-v1.5
+      EMBEDDING_DIMENSIONS: "384"
+      # Set these in a .env file next to this compose file; both are optional and
+      # the app degrades gracefully without them.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
+      # host.docker.internal reaches Ollama on the Mac/Windows host from the API container
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3:latest}
+      OLLAMA_ENABLED: ${OLLAMA_ENABLED:-true}
+      JWT_SECRET: ${JWT_SECRET:-dev-only-change-me}
     volumes:
-      - ./backend/fastapi:/app
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
-      start_period: 5s
-    restart: unless-stopped
-
-  # ── Node.js API Gateway ─────────────────────────────────────────────────────
-  node-gateway:
-    build:
-      context: ./backend/node
-      dockerfile: Dockerfile
-    container_name: hearconnect-node-gateway
-    ports:
-      - "3000:3000"
-    environment:
-      - GATEWAY_PORT=3000
-      - FASTAPI_URL=http://fastapi:8000
-      - FRONTEND_URL=http://localhost:5173
-      - NODE_ENV=development
-    volumes:
-      - ./backend/node:/app
-      - /app/node_modules
+      - ./backend:/app
+      - document-storage:/app/data
     depends_on:
-      fastapi:
+      postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "alembic upgrade head &&
+             python scripts/seed.py &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/gateway/health"]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
       interval: 10s
-      timeout: 3s
-      retries: 3
-      start_period: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     restart: unless-stopped
 
-networks:
-  default:
-    name: hearconnect-network
+  # ── React frontend (Vite dev server) ────────────────────────────────────────
+  web:
+    image: node:20-alpine
+    container_name: niepmd-web
+    working_dir: /app
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
+    volumes:
+      - ./frontend:/app
+      - web-node-modules:/app/node_modules
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    depends_on:
+      api:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  redis-data:
+  qdrant-data:
+  document-storage:
+  web-node-modules:
