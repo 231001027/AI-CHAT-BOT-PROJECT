@@ -107,7 +107,7 @@ export function SummaryPage() {
 
           <div className="flex flex-wrap gap-3">
             <Button type="button" onClick={continueToResults} disabled={evaluating}>
-              {evaluating ? 'Evaluating…' : 'See recommended tests'}
+              {evaluating ? 'Evaluating…' : 'See Recommendation'}
             </Button>
             <LinkButton to="/chat/category" variant="secondary">
               Correct / restart pathway

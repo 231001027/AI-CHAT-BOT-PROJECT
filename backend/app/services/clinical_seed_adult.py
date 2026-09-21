@@ -1,7 +1,7 @@
 """
 Adult pathway seed content — Part 2 Adults.
 
-SECTION A — Speech and Language (5 categories × 5 questions)
+SECTION A — Speech and Language (clinical screening PDF protocol)
 SECTION B — Audiology / Hearing (5 categories × 5 questions)
 
 Answer set is Yes / No / Not sure unless a question specifies otherwise.
@@ -34,14 +34,8 @@ EAR_COMPARE: list[dict[str, str]] = [
 ]
 
 STUTTER_ONSET: list[dict[str, str]] = [
-    {"label": "Since childhood", "value": "childhood"},
-    {"label": "Recently", "value": "recently"},
-    {"label": "Not sure", "value": "not_sure"},
-]
-
-CLARITY_ONSET: list[dict[str, str]] = [
-    {"label": "Suddenly", "value": "suddenly"},
-    {"label": "Gradually", "value": "gradually"},
+    {"label": "Childhood", "value": "childhood"},
+    {"label": "Adult", "value": "adult"},
     {"label": "Not sure", "value": "not_sure"},
 ]
 
@@ -78,6 +72,26 @@ def _baseline(
         "is_baseline": True,
         "priority": 50,
         "rule_definition": {},
+        "tests": tests,
+    }
+
+
+def _when(
+    condition_slug: str,
+    name: str,
+    description: str,
+    rule_definition: dict[str, Any],
+    tests: list[dict[str, Any]],
+    *,
+    priority: int = 40,
+) -> dict[str, Any]:
+    return {
+        "condition_slug": condition_slug,
+        "name": name,
+        "description": description,
+        "is_baseline": False,
+        "priority": priority,
+        "rule_definition": rule_definition,
         "tests": tests,
     }
 
@@ -243,36 +257,197 @@ ADULT_CONDITIONS: list[dict[str, Any]] = [
 
 
 ADULT_QUESTIONS: list[dict[str, Any]] = [
-    # 1. Speech and Language Issues
-    _q("adult-speech-language-screen", "struggle_find_word", "Do you struggle to find the right word?", 1, is_entry=True),
-    _q("adult-speech-language-screen", "hard_understand_others", "Is it hard to understand what others say?", 2),
-    _q("adult-speech-language-screen", "difficulty_reading_writing_numbers", "Any difficulty reading, writing or with numbers?", 3),
-    _q("adult-speech-language-screen", "after_stroke_or_head_injury", "Did this start after a stroke or head injury?", 4),
-    _q("adult-speech-language-screen", "affects_work_or_daily_life", "Does it affect your work or daily life?", 5),
-    # 2. Stuttering (Fluency)
-    _q("adult-stuttering-fluency", "repeats_sounds_words", "Do you repeat sounds or words while speaking?", 1, is_entry=True),
-    _q("adult-stuttering-fluency", "gets_stuck_on_word", "Do you get stuck on a word?", 2),
-    _q("adult-stuttering-fluency", "avoids_calls_speaking", "Do you avoid calls or speaking situations?", 3),
-    _q("adult-stuttering-fluency", "tension_face_jaw", "Any tension in face or jaw while speaking?", 4),
-    _q("adult-stuttering-fluency", "when_did_it_start", "When did it start?", 5, options=STUTTER_ONSET),
-    # 3. Speech Clarity
-    _q("adult-speech-clarity-screen", "people_ask_to_repeat", "Do people often ask you to repeat?", 1, is_entry=True),
-    _q("adult-speech-clarity-screen", "speech_slurred_or_slow", "Does your speech sound slurred or slow?", 2),
-    _q("adult-speech-clarity-screen", "worse_when_tired", "Does it get worse when you are tired?", 3),
-    _q("adult-speech-clarity-screen", "weakness_face_lips_tongue", "Any weakness in face, lips or tongue?", 4),
-    _q("adult-speech-clarity-screen", "how_did_it_start", "How did it start?", 5, options=CLARITY_ONSET),
-    # 4. Voice Problems
-    _q("adult-voice-screen", "voice_hoarse_rough_weak", "Is your voice hoarse, rough or weak?", 1, is_entry=True),
-    _q("adult-voice-screen", "voice_tires_after_talking", "Does your voice tire out after talking?", 2),
-    _q("adult-voice-screen", "throat_pain_or_tightness", "Any throat pain or tightness while speaking?", 3),
-    _q("adult-voice-screen", "job_heavy_voice_use", "Does your job need heavy voice use?", 4),
-    _q("adult-voice-screen", "voice_different_over_2_weeks", "Has your voice been different for over 2 weeks?", 5),
-    # 5. Feeding and Swallowing
-    _q("adult-feeding-swallowing-screen", "cough_choke_eating", "Do you cough or choke while eating or drinking?", 1, is_entry=True),
-    _q("adult-feeding-swallowing-screen", "food_stuck_throat_chest", "Does food feel stuck in your throat or chest?", 2),
-    _q("adult-feeding-swallowing-screen", "meals_take_longer", "Do meals take much longer than before?", 3),
-    _q("adult-feeding-swallowing-screen", "changed_diet", "Have you changed your diet because of this?", 4),
-    _q("adult-feeding-swallowing-screen", "weight_loss_chest_infections", "Any weight loss or repeated chest infections?", 5),
+    # 1. Speech, Language & Functional Communication
+    _q(
+        "adult-speech-language-screen",
+        "struggle_find_word",
+        "Do you often have trouble finding the word you want or accidentally say a different word?",
+        1,
+        is_entry=True,
+    ),
+    _q(
+        "adult-speech-language-screen",
+        "hard_understand_others",
+        "Do you have trouble following fast conversations or complicated spoken instructions?",
+        2,
+    ),
+    _q(
+        "adult-speech-language-screen",
+        "difficulty_reading_writing_numbers",
+        "Have you recently developed problems with reading, writing, or everyday calculations?",
+        3,
+    ),
+    _q(
+        "adult-speech-language-screen",
+        "after_stroke_or_head_injury",
+        "Did these communication problems begin after a stroke, head injury, or other brain illness?",
+        4,
+    ),
+    _q(
+        "adult-speech-language-screen",
+        "short_effortful_phrases",
+        "Do you speak in short, effortful phrases and sometimes leave out small grammar words?",
+        5,
+    ),
+    _q(
+        "adult-speech-language-screen",
+        "affects_work_or_daily_life",
+        "Do your speech difficulties make phone calls, work tasks, or everyday activities harder?",
+        6,
+    ),
+    _q(
+        "adult-speech-language-screen",
+        "difficulty_remembering_conversations",
+        "Do you have difficulty remembering conversations or staying focused during communication?",
+        7,
+    ),
+    # 2. Adult Fluency, Stuttering & Cluttering
+    _q(
+        "adult-stuttering-fluency",
+        "repeats_sounds_syllables",
+        "Do you repeat sounds or syllables when speaking, such as 't-t-today' or 'I-I-I'?",
+        1,
+        is_entry=True,
+    ),
+    _q(
+        "adult-stuttering-fluency",
+        "stretch_sounds_or_blocks",
+        "Do you stretch sounds out, such as 'ssss-seven', or sometimes experience silent blocks?",
+        2,
+    ),
+    _q(
+        "adult-stuttering-fluency",
+        "tension_or_movements",
+        "When speech becomes difficult, do you feel tension in your jaw, neck, or face, or use movements such as tapping your feet?",
+        3,
+    ),
+    _q(
+        "adult-stuttering-fluency",
+        "change_words_to_avoid",
+        "Do you sometimes change words or talk around what you mean to avoid a difficult sound or word?",
+        4,
+    ),
+    _q(
+        "adult-stuttering-fluency",
+        "avoid_speaking_situations",
+        "Do you avoid situations such as phone calls, introductions, or ordering because speaking feels difficult?",
+        5,
+    ),
+    _q(
+        "adult-stuttering-fluency",
+        "rushed_uneven_speech",
+        "Does your speech sometimes sound rushed, uneven, or as though several words run together?",
+        6,
+    ),
+    _q(
+        "adult-stuttering-fluency",
+        "fluency_onset",
+        "Did the difficulty with fluency begin during childhood, or did it start suddenly as an adult?",
+        7,
+        options=STUTTER_ONSET,
+    ),
+    _q(
+        "adult-stuttering-fluency",
+        "fluency_causes_stress",
+        "Does your speech difficulty cause stress or make social, work, or career situations harder?",
+        8,
+    ),
+    # 3. Speech Clarity & Motor Speech Function
+    _q(
+        "adult-speech-clarity-screen",
+        "speech_slurred_unclear",
+        "Does your speech sound slurred or unclear enough that other people have trouble understanding you?",
+        1,
+        is_entry=True,
+    ),
+    _q(
+        "adult-speech-clarity-screen",
+        "difficulty_syllable_sequence",
+        "Do you have difficulty saying a sequence of syllables quickly, such as 'puh-tuh-kuh'?",
+        2,
+    ),
+    _q(
+        "adult-speech-clarity-screen",
+        "less_clear_when_tired",
+        "Does your speech become less clear when you are tired?",
+        3,
+    ),
+    _q(
+        "adult-speech-clarity-screen",
+        "facial_drooping_or_slow_tongue",
+        "Have you noticed facial drooping, stiff lips, or slower tongue movements?",
+        4,
+    ),
+    _q(
+        "adult-speech-clarity-screen",
+        "voice_flat_monotone",
+        "Does your voice sometimes sound unusually flat, monotone, or robotic?",
+        5,
+    ),
+    _q(
+        "adult-speech-clarity-screen",
+        "searching_mouth_position",
+        "When saying certain words, do you find yourself searching for the correct mouth position?",
+        6,
+    ),
+    # 4. Adult Voice & Laryngeal Function
+    _q(
+        "adult-voice-screen",
+        "voice_hoarse_rough_weak",
+        "Is your voice regularly hoarse, rough, weak, or breathy?",
+        1,
+        is_entry=True,
+    ),
+    _q(
+        "adult-voice-screen",
+        "voice_tires_after_talking",
+        "Does your voice become tired or do you run out of air after talking for a moderate amount of time?",
+        2,
+    ),
+    _q(
+        "adult-voice-screen",
+        "throat_ache_tightness_lump",
+        "Do you feel aching or tightness in your throat, or a constant lump-like feeling?",
+        3,
+    ),
+    _q(
+        "adult-voice-screen",
+        "job_heavy_voice_use",
+        "Does your work require you to use your voice heavily, such as teaching, taking calls, or sales?",
+        4,
+    ),
+    _q(
+        "adult-voice-screen",
+        "voice_change_over_2_3_weeks",
+        "Has a change in your voice or hoarseness lasted longer than two to three weeks?",
+        5,
+    ),
+    _q(
+        "adult-voice-screen",
+        "pitch_break_or_tremor",
+        "Does your voice unexpectedly break in pitch or develop involuntary shaking or tremor?",
+        6,
+    ),
+    # 5. Adult Swallowing & Audiological Function
+    _q(
+        "adult-feeding-swallowing-screen",
+        "cough_choke_eating",
+        "Do you cough, clear your throat, or choke when eating or drinking liquids?",
+        1,
+        is_entry=True,
+    ),
+    _q(
+        "adult-feeding-swallowing-screen",
+        "food_stuck_throat_chest",
+        "Do solid food, tablets, or liquids ever feel as though they are stuck in your throat or chest?",
+        2,
+    ),
+    _q(
+        "adult-feeding-swallowing-screen",
+        "changed_diet_softer",
+        "Have you changed your diet to softer foods or purees because you're worried about choking?",
+        3,
+    ),
     # 1. Hearing Difficulty
     _q("adult-hearing-difficulty-screen", "hard_in_noisy_places", "Is it hard to follow conversation in noisy places?", 1, is_entry=True),
     _q("adult-hearing-difficulty-screen", "often_ask_to_repeat", "Do you often ask people to repeat?", 2),
@@ -306,20 +481,24 @@ ADULT_QUESTIONS: list[dict[str, Any]] = [
 ]
 
 
-_SPEECH_TESTS = [
-    {
-        "test_code": "SLP_EVAL",
-        "test_name": "Speech-Language Evaluation",
-        "reason_text": "A speech-language assessment reviews how you understand and use language.",
-        "display_order": 1,
-    },
-    {
-        "test_code": "PTA",
-        "test_name": "Pure Tone Audiometry",
-        "reason_text": "Hearing is checked because it affects speech and communication.",
-        "display_order": 2,
-    },
-]
+_WAB = {
+    "test_code": "WAB",
+    "test_name": "Western Aphasia Battery (WAB)",
+    "reason_text": (
+        "Evaluates spontaneous speech, comprehension, repetition and naming, "
+        "mainly after stroke or brain injury."
+    ),
+    "display_order": 1,
+}
+_LPT = {
+    "test_code": "LPT",
+    "test_name": "Linguistic Profile Test (LPT)",
+    "reason_text": "Builds a detailed language profile for adults.",
+    "display_order": 2,
+}
+
+
+_SPEECH_TESTS: list[dict[str, Any]] = []
 
 _HEARING_TESTS = [
     {
@@ -347,13 +526,35 @@ ADULT_RULES: list[dict[str, Any]] = [
     _baseline(
         "adult-speech-language-screen",
         "Baseline — adult speech and language",
-        "Standard speech-language screen with hearing check.",
+        "Standard speech-language screen.",
         _SPEECH_TESTS,
+    ),
+    _when(
+        "adult-speech-language-screen",
+        "WAB after stroke or brain injury",
+        "Western Aphasia Battery when language change followed a stroke or head injury.",
+        {"field": "after_stroke_or_head_injury", "op": "eq", "value": "yes"},
+        [_WAB],
+        priority=80,
+    ),
+    _when(
+        "adult-speech-language-screen",
+        "LPT for adult language profile",
+        "Linguistic Profile Test when word finding, comprehension, or literacy is affected.",
+        {
+            "any": [
+                {"field": "struggle_find_word", "op": "eq", "value": "yes"},
+                {"field": "hard_understand_others", "op": "eq", "value": "yes"},
+                {"field": "difficulty_reading_writing_numbers", "op": "eq", "value": "yes"},
+            ]
+        },
+        [_LPT],
+        priority=70,
     ),
     _baseline(
         "adult-stuttering-fluency",
         "Baseline — adult stuttering / fluency",
-        "Fluency assessment with hearing screen.",
+        "Fluency assessment.",
         [
             {
                 "test_code": "FLUENCY_EVAL",
@@ -361,13 +562,12 @@ ADULT_RULES: list[dict[str, Any]] = [
                 "reason_text": "Looks at how smoothly you speak and what support may help.",
                 "display_order": 1,
             },
-            _SPEECH_TESTS[1],
         ],
     ),
     _baseline(
         "adult-speech-clarity-screen",
         "Baseline — adult speech clarity",
-        "Articulation / clarity assessment with hearing check.",
+        "Articulation / clarity assessment.",
         [
             {
                 "test_code": "ARTIC_EVAL",
@@ -375,13 +575,12 @@ ADULT_RULES: list[dict[str, Any]] = [
                 "reason_text": "Checks which speech sounds are clear and which need support.",
                 "display_order": 1,
             },
-            _SPEECH_TESTS[1],
         ],
     ),
     _baseline(
         "adult-voice-screen",
         "Baseline — adult voice problems",
-        "Voice assessment with hearing screen.",
+        "Voice assessment.",
         [
             {
                 "test_code": "VOICE_EVAL",
@@ -389,7 +588,6 @@ ADULT_RULES: list[dict[str, Any]] = [
                 "reason_text": "Reviews voice quality, strain, and day-to-day voice use.",
                 "display_order": 1,
             },
-            _SPEECH_TESTS[1],
         ],
     ),
     _baseline(

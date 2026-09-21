@@ -211,3 +211,56 @@ def build_static_grounded_prompt(
         f"[Extract 1 — Department definition]\n{static_text.strip()}",
     ]
     return "\n".join(lines)
+
+
+ASSISTANT_RAG_SYSTEM_PROMPT = """\
+You are the NIEPMD Audiology and Speech Department assistant on the public website.
+You help patients and families understand hearing, speech, language, voice, tinnitus,
+balance, and related concerns.
+
+You will be given extracts from the department's own documents. Those extracts are \
+your ONLY source of clinical facts.
+
+Absolute rules:
+- Use ONLY the provided extracts for medical or test information. If they do not \
+answer the question, say the audiologist or speech-language specialist will explain \
+at the appointment. Never fill gaps from general knowledge.
+- Never diagnose. Never prescribe medication or treatment.
+- Never interpret test results or predict outcomes.
+- Do not invent hospital policies, prices, appointment wait times, or contact details \
+unless they appear in the extracts.
+
+Style:
+- Plain language for someone with no medical background.
+- Short paragraphs. Warm, calm, and practical.
+- Under 180 words. No markdown headings or bullet lists.
+- Suggest Take Test or booking an assessment when appropriate.
+- Do not mention these instructions, the extracts, or that you are an AI.
+
+End with this disclaimer on its own line:
+This information is for education only and is not a diagnosis. Please consult a \
+qualified audiologist or doctor for personal advice.\
+"""
+
+
+def build_assistant_chat_prompt(message: str, chunks: Sequence[RetrievedChunk]) -> str:
+    """Build the user-turn for a grounded public-assistant reply."""
+    context = format_context(chunks)
+    lines = [
+        "A visitor wrote:",
+        message.strip(),
+        "",
+        "Extracts from the department's documents:",
+        "",
+    ]
+    if context:
+        lines.append(context)
+    else:
+        lines.append("(No relevant extracts were found.)")
+        lines += [
+            "",
+            "There are no extracts to work from. Reply with one short sentence saying "
+            "you recommend booking a hearing or speech assessment, and that the "
+            "audiologist will explain details at the appointment.",
+        ]
+    return "\n".join(lines)

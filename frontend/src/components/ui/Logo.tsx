@@ -10,7 +10,7 @@ export function Logo({ className = '', showText = true }: LogoProps) {
     <Link
       to="/"
       className={`flex items-center gap-2.5 font-display font-extrabold ${className}`}
-      aria-label="NIEPMD Audiology and Speech home"
+      aria-label="NIEPMD Department of Speech, Hearing and Communication home"
     >
       <img
         src="/niepmd-logo.png"
@@ -18,10 +18,10 @@ export function Logo({ className = '', showText = true }: LogoProps) {
         className="h-10 w-auto shrink-0 object-contain sm:h-11"
       />
       {showText && (
-        <span className="text-base leading-tight text-slate-900 sm:text-lg">
-          NIEPMD
-          <span className="ml-1.5 text-xs font-semibold text-brand-600 sm:text-sm">
-            Audiology and Speech
+        <span className="flex min-w-0 flex-col leading-tight">
+          <span className="text-base font-extrabold text-slate-900 sm:text-lg">NIEPMD</span>
+          <span className="text-[11px] font-semibold text-brand-600 sm:text-xs">
+            Department of Speech, Hearing and Communication
           </span>
         </span>
       )}

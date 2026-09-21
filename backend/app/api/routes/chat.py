@@ -27,11 +27,12 @@ class PublicChatResponse(BaseModel):
     response: str
     followups: list[str]
     matched_keywords: list[str]
+    source: str = "keyword"
 
 
 @public_router.post("/chat", response_model=PublicChatResponse)
 async def public_assistant_chat(body: PublicChatRequest) -> PublicChatResponse:
-    """AI assistant for /ai-assistant — Ollama when available, keyword fallback otherwise."""
+    """RAG-grounded AI assistant for /ai-assistant (Ollama + Qdrant corpus)."""
     result = await public_assistant.answer_message_async(body.message)
     return PublicChatResponse(**result)
 

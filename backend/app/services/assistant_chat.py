@@ -1,8 +1,8 @@
 """
 Public AI assistant chat for the /ai-assistant page.
 
-Prefers local Ollama for natural replies. Falls back to curated keyword rules
-when Ollama is offline or the call fails, so the page always answers.
+Uses RAG (Qdrant + local embeddings + Ollama) when a corpus is available.
+Falls back to curated keyword rules when retrieval or the model is unavailable.
 """
 
 from __future__ import annotations
@@ -12,6 +12,12 @@ from dataclasses import dataclass, field
 
 from app.config import get_settings
 from app.services.ai.llm import generate_text
+from app.services.ai.prompt_templates import (
+    ASSISTANT_RAG_SYSTEM_PROMPT,
+    build_assistant_chat_prompt,
+)
+from app.services.ai.rag_pipeline import retrieve_for_message
+from app.services.ai.vector_store import RetrievedChunk
 
 logger = logging.getLogger("nipmed.assistant_chat")
 
@@ -230,6 +236,26 @@ def match_keywords(text: str, rule: ChatRule) -> list[str]:
     return [k for k in rule.keywords if k in lowered]
 
 
+def _format_rag_extract_fallback(chunks: list[RetrievedChunk]) -> str:
+    """Plain answer from retrieved extracts when the LLM is unavailable."""
+    parts = [
+        "Here is what the department's guidance says:",
+        "",
+    ]
+    for index, chunk in enumerate(chunks[:3], start=1):
+        body = " ".join(chunk.text.split())
+        if len(body) > 900:
+            body = body[:897].rstrip() + "…"
+        parts.append(f"From “{chunk.title}” ({index}):")
+        parts.append(body)
+        parts.append("")
+    parts.append(
+        "This information is for education only and is not a diagnosis. "
+        "Please consult a qualified audiologist or doctor for personal advice."
+    )
+    return "\n".join(parts).strip()
+
+
 def answer_message(message: str) -> dict[str, object]:
     """Synchronous keyword-only answer (tests / fallbacks)."""
     rule = find_response(message)
@@ -237,35 +263,55 @@ def answer_message(message: str) -> dict[str, object]:
         "response": rule.response,
         "followups": rule.followups,
         "matched_keywords": match_keywords(message, rule),
+        "source": "keyword",
     }
 
 
 async def answer_message_async(message: str) -> dict[str, object]:
     """
-    Prefer local Ollama; fall back to keyword rules if the model is unavailable.
+    RAG-first assistant: retrieve departmental documents, generate with Ollama,
+    then degrade to extract text or keyword rules.
     """
     rule = find_response(message)
     followups = rule.followups or DEFAULT_RESPONSE.followups
     matched = match_keywords(message, rule)
     settings = get_settings()
 
-    if settings.active_llm_provider == "ollama":
-        text = await generate_text(
-            SYSTEM_PROMPT,
-            f"Patient message:\n{message.strip()}",
-            max_tokens=400,
-        )
-        if text:
-            logger.info("Public assistant reply via Ollama (%s)", settings.ollama_model)
-            return {
-                "response": text,
-                "followups": followups,
-                "matched_keywords": matched,
-            }
-        logger.warning("Ollama unavailable — using keyword fallback")
+    chunks = await retrieve_for_message(message)
 
+    if chunks:
+        if settings.llm_enabled:
+            user_prompt = build_assistant_chat_prompt(message, chunks)
+            text = await generate_text(
+                ASSISTANT_RAG_SYSTEM_PROMPT,
+                user_prompt,
+                max_tokens=450,
+            )
+            if text:
+                logger.info(
+                    "Public assistant RAG reply via %s (%s chunks)",
+                    settings.active_llm_provider,
+                    len(chunks),
+                )
+                return {
+                    "response": text,
+                    "followups": followups,
+                    "matched_keywords": matched,
+                    "source": "rag",
+                }
+
+        logger.info("RAG chunks found but LLM unavailable — using extract fallback")
+        return {
+            "response": _format_rag_extract_fallback(chunks),
+            "followups": followups,
+            "matched_keywords": matched,
+            "source": "rag_extract",
+        }
+
+    logger.warning("No RAG chunks — using keyword fallback")
     return {
         "response": rule.response,
         "followups": followups,
         "matched_keywords": matched,
+        "source": "keyword",
     }

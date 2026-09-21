@@ -227,7 +227,7 @@ function CategorySection({
                       {c.title}
                     </p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                      5 questions · Yes / No / Not sure
+                      {c.commonSigns.length} questions · Yes / No / Not sure
                     </p>
                   </div>
                   <ArrowRight size={16} className="shrink-0 text-slate-400" />

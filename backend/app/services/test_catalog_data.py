@@ -425,6 +425,145 @@ CLINICAL_TEST_CATALOG: list[dict[str, Any]] = [
         "duration_minutes": 60,
     },
     {
+        "code": "WAB",
+        "name": "Western Aphasia Battery (WAB)",
+        "category": "speech",
+        "description": (
+            "Evaluates spontaneous speech, comprehension, repetition and naming. It is "
+            "used mainly when language has changed after a stroke or brain injury, and "
+            "gives a structured picture of which language skills need support."
+        ),
+        "preparation": (
+            "Bring any neurology or stroke discharge summaries, recent brain imaging "
+            "reports, and a family member who can describe how talking and understanding "
+            "have changed. Wear glasses or hearing aids if you use them."
+        ),
+        "duration_minutes": 60,
+    },
+    {
+        "code": "LPT",
+        "name": "Linguistic Profile Test (LPT)",
+        "category": "speech",
+        "description": (
+            "Profiles language across sounds, word forms, sentence structure, and meaning. "
+            "It is used with adults and with older children so therapy can focus on the "
+            "areas that need most support."
+        ),
+        "preparation": (
+            "Bring glasses or hearing aids if you use them, and any previous speech or "
+            "language reports. A family member who knows how communication is at home "
+            "can add useful context at the start of the session."
+        ),
+        "duration_minutes": 60,
+    },
+    {
+        "code": "ALD",
+        "name": "Assessment of Language Development (ALD)",
+        "category": "speech",
+        "description": (
+            "Checks how a child understands and uses language against age-expected "
+            "milestones, so the clinician can see which language skills are on track "
+            "and which need support."
+        ),
+        "preparation": (
+            "Bring any previous speech or language reports and a parent or caregiver "
+            "who knows how the child communicates at home and at school. Hearing aids "
+            "or glasses should be worn if the child uses them."
+        ),
+        "duration_minutes": 60,
+    },
+    {
+        "code": "REELS",
+        "name": "Receptive-Expressive Emergent Language Scale (REELS)",
+        "category": "paediatric",
+        "description": (
+            "Assesses early receptive and expressive language in infants and toddlers, "
+            "looking at how the child understands others and how they begin to use "
+            "sounds, gestures, and words."
+        ),
+        "preparation": (
+            "A parent or caregiver who knows the child’s daily communication should "
+            "attend. Bring a favourite toy if it helps the child settle. Hearing aids "
+            "or glasses should be worn if the child uses them."
+        ),
+        "duration_minutes": 45,
+    },
+    {
+        "code": "COMDEALL",
+        "name": "COMDEALL Developmental Checklist",
+        "category": "paediatric",
+        "description": (
+            "Screens broader developmental and communication milestones. It is often "
+            "used when Autism Spectrum concerns are suspected, alongside a speech and "
+            "language review."
+        ),
+        "preparation": (
+            "A parent or caregiver who knows the child’s play, social interaction, and "
+            "daily routines should attend. Bring any previous developmental or "
+            "paediatric reports if you have them."
+        ),
+        "duration_minutes": 45,
+    },
+    {
+        "code": "SLP_EVAL",
+        "name": "Speech-Language Evaluation",
+        "category": "speech",
+        "description": (
+            "A speech-language evaluation reviews how you understand and use language, "
+            "how clearly you speak, and which skills would benefit from therapy. It is "
+            "the usual first assessment for adult speech and language concerns."
+        ),
+        "preparation": (
+            "Bring previous medical or discharge summaries, glasses or hearing aids if "
+            "you use them, and a family member who can describe day-to-day communication."
+        ),
+        "duration_minutes": 60,
+    },
+    {
+        "code": "FLUENCY_EVAL",
+        "name": "Fluency Assessment",
+        "category": "speech",
+        "description": (
+            "Looks at how smoothly speech flows, including repetitions, blocks and "
+            "avoidance, and how much this is affecting confidence and daily speaking "
+            "situations."
+        ),
+        "preparation": (
+            "If possible bring a short recording of natural speech at home. Note the "
+            "situations that feel hardest, such as phone calls or speaking in a group."
+        ),
+        "duration_minutes": 60,
+    },
+    {
+        "code": "ARTIC_EVAL",
+        "name": "Speech Sound / Clarity Assessment",
+        "category": "speech",
+        "description": (
+            "Checks which speech sounds are clear, which are slurred or imprecise, and "
+            "how understandable speech is to others. It identifies which sounds need "
+            "support."
+        ),
+        "preparation": (
+            "Come ready to talk at a comfortable pace. Note words that others often "
+            "cannot understand, and whether speech is worse when you are tired."
+        ),
+        "duration_minutes": 45,
+    },
+    {
+        "code": "VOICE_EVAL",
+        "name": "Voice Assessment",
+        "category": "speech",
+        "description": (
+            "Reviews voice quality, strain, pitch, loudness and how the voice holds up "
+            "through the day, so habits that tire the voice can be identified."
+        ),
+        "preparation": (
+            "Avoid shouting, whispering and throat-clearing for 24 hours if you can. "
+            "Bring any ENT reports about the vocal cords, and note when the voice is worst."
+        ),
+        "duration_minutes": 45,
+    },
+    {
         "code": "LANG_COMP",
         "name": "Language Comprehension Assessment",
         "category": "speech",

@@ -101,7 +101,7 @@ export function Footer() {
 
         <div className="mt-12 pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            © {new Date().getFullYear()} NIEPMD Audiology and Speech. All rights reserved.
+            © {new Date().getFullYear()} NIEPMD Department of Speech, Hearing and Communication. All rights reserved.
           </p>
           <p className="text-xs text-slate-500 dark:text-slate-400 inline-flex items-center gap-1.5">
             Made with <Heart size={12} className="text-pink-500 fill-pink-500" /> for hearing care

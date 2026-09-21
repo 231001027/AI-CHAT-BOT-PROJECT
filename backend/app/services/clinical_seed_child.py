@@ -224,36 +224,184 @@ CHILD_CONDITIONS: list[dict[str, Any]] = [
 
 
 CHILD_QUESTIONS: list[dict[str, Any]] = [
-    # 1. Speech and Language Issues
-    _q("child-speech-language-issues", "speaks_less_than_peers", "Does your child speak less than other children of the same age?", 1, is_entry=True),
-    _q("child-speech-language-issues", "follows_simple_instructions", "Does your child follow simple instructions?", 2),
-    _q("child-speech-language-issues", "points_instead_of_talking", "Does your child point or gesture instead of talking?", 3),
-    _q("child-speech-language-issues", "stopped_using_words", "Has your child stopped using words they knew before?", 4),
-    _q("child-speech-language-issues", "hard_to_hold_conversation", "Is it hard for your child to hold a conversation?", 5),
-    # 2. Stuttering (Fluency)
-    _q("child-stuttering-fluency", "repeats_sounds_words", "Does your child repeat sounds or words while speaking?", 1, is_entry=True),
-    _q("child-stuttering-fluency", "gets_stuck_on_word", "Does your child get stuck on a word?", 2),
-    _q("child-stuttering-fluency", "stretches_sounds", "Does your child stretch out sounds?", 3),
-    _q("child-stuttering-fluency", "eye_blink_head_movements", "Any eye blinking or head movements while speaking?", 4),
-    _q("child-stuttering-fluency", "avoids_speaking", "Does your child avoid speaking because of this?", 5),
-    # 3. Speech Clarity
-    _q("child-speech-clarity-issues", "outsiders_hard_to_understand", "Do outsiders find it hard to understand your child?", 1, is_entry=True),
-    _q("child-speech-clarity-issues", "miss_or_mix_sounds", "Does your child miss or mix up sounds in words?", 2),
-    _q("child-speech-clarity-issues", "must_repeat_what_child_said", "Do you have to repeat what your child said?", 3),
-    _q("child-speech-clarity-issues", "speech_rate_mumbled", "Is your child’s speech too fast, slow or mumbled?", 4),
-    _q("child-speech-clarity-issues", "started_speaking_late", "Did your child start speaking late?", 5),
-    # 4. Voice Problems
-    _q("child-voice-issues", "voice_hoarse_rough", "Is your child’s voice hoarse or rough?", 1, is_entry=True),
-    _q("child-voice-issues", "voice_weak_after_talking", "Does the voice get weak after talking a while?", 2),
-    _q("child-voice-issues", "throat_pain_while_speaking", "Does your child complain of throat pain while speaking?", 3),
-    _q("child-voice-issues", "shouts_or_screams_often", "Does your child shout or scream often?", 4),
-    _q("child-voice-issues", "voice_different_over_2_weeks", "Has the voice been different for over 2 weeks?", 5),
-    # 5. Feeding and Swallowing
-    _q("child-feeding-swallowing-issues", "cough_choke_eating", "Does your child cough or choke while eating or drinking?", 1, is_entry=True),
-    _q("child-feeding-swallowing-issues", "food_out_nose_mouth", "Does food or liquid come out of the nose or mouth?", 2),
-    _q("child-feeding-swallowing-issues", "meal_over_30_minutes", "Does a meal take more than 30 minutes?", 3),
-    _q("child-feeding-swallowing-issues", "refuses_solids_liquids", "Does your child refuse solids or liquids?", 4),
-    _q("child-feeding-swallowing-issues", "poor_weight_chest_infections", "Poor weight gain or repeated chest infections?", 5),
+    # 1. Language Development & Comprehension
+    _q(
+        "child-speech-language-issues",
+        "fewer_words_shorter_sentences",
+        "Compared with other children of the same age, does your child use fewer words or much shorter sentences?",
+        1,
+        is_entry=True,
+    ),
+    _q(
+        "child-speech-language-issues",
+        "trouble_following_directions",
+        "Does your child have trouble following simple spoken directions unless you also use gestures?",
+        2,
+    ),
+    _q(
+        "child-speech-language-issues",
+        "point_cry_pull_instead_of_words",
+        "Does your child often point, cry, or pull someone's hand instead of using words to communicate?",
+        3,
+    ),
+    _q(
+        "child-speech-language-issues",
+        "lost_words_or_skills",
+        "Has your child lost words or communication skills that they used regularly before?",
+        4,
+    ),
+    _q(
+        "child-speech-language-issues",
+        "difficulty_conversation",
+        "Does your child have difficulty answering questions or keeping a short conversation going?",
+        5,
+    ),
+    _q(
+        "child-speech-language-issues",
+        "leaves_out_grammar_words",
+        "Does your child leave out small grammar words such as 'is' or 'the', or often use sentence grammar incorrectly?",
+        6,
+    ),
+    _q(
+        "child-speech-language-issues",
+        "trouble_naming_objects",
+        "Does your child have trouble naming familiar objects and often say things like 'that thing' instead?",
+        7,
+    ),
+    # 2. Childhood Fluency & Stuttering
+    _q(
+        "child-stuttering-fluency",
+        "repeats_sound_or_syllable",
+        "Does your child repeat a sound or syllable several times, such as 'b-b-b-ball'?",
+        1,
+        is_entry=True,
+    ),
+    _q(
+        "child-stuttering-fluency",
+        "holds_sound_long",
+        "Does your child hold a sound for a long time, such as 'ssss-snake'?",
+        2,
+    ),
+    _q(
+        "child-stuttering-fluency",
+        "gets_stuck_no_sound",
+        "Does your child sometimes get stuck while trying to speak, with no sound coming out?",
+        3,
+    ),
+    _q(
+        "child-stuttering-fluency",
+        "eye_blink_facial_tension",
+        "Do you notice eye blinking, facial tension, or other movements when your child is having difficulty speaking?",
+        4,
+    ),
+    _q(
+        "child-stuttering-fluency",
+        "frustrated_or_avoids_talking",
+        "Does your child become frustrated, cover their mouth, or avoid talking when speech is difficult?",
+        5,
+    ),
+    _q(
+        "child-stuttering-fluency",
+        "speech_fast_uneven",
+        "Does your child's speech sometimes sound very fast, uneven, or as though words run together?",
+        6,
+    ),
+    # 3. Speech Sound Clarity & Articulation
+    _q(
+        "child-speech-clarity-issues",
+        "others_hard_to_understand",
+        "Do people who aren't used to your child's speech have trouble understanding what they say?",
+        1,
+        is_entry=True,
+    ),
+    _q(
+        "child-speech-clarity-issues",
+        "leave_out_or_replace_sounds",
+        "Does your child leave out or replace sounds in familiar words, such as saying 'tat' instead of 'cat'?",
+        2,
+    ),
+    _q(
+        "child-speech-clarity-issues",
+        "family_repeats_what_child_says",
+        "Do you or other family members often need to repeat what your child says or explain it to others?",
+        3,
+    ),
+    _q(
+        "child-speech-clarity-issues",
+        "leaves_out_syllables",
+        "Does your child leave out syllables in longer words, such as saying 'nana' for 'banana'?",
+        4,
+    ),
+    _q(
+        "child-speech-clarity-issues",
+        "searching_mouth_position",
+        "When repeating a word, does your child appear to search for the right mouth position or make unusual mouth movements?",
+        5,
+    ),
+    _q(
+        "child-speech-clarity-issues",
+        "late_babbling_or_first_words",
+        "Did your child begin babbling or using first words later than expected for their age?",
+        6,
+    ),
+    # 4. Pediatric Voice & Resonance
+    _q(
+        "child-voice-issues",
+        "voice_hoarse_rough_breathy",
+        "Does your child's voice regularly sound hoarse, rough, or breathy?",
+        1,
+        is_entry=True,
+    ),
+    _q(
+        "child-voice-issues",
+        "voice_weak_after_talking",
+        "Does your child's voice become weak, strained, or disappear after talking or crying for a while?",
+        2,
+    ),
+    _q(
+        "child-voice-issues",
+        "throat_sore_after_speaking",
+        "Does your child complain that their throat feels sore, tight, or uncomfortable after speaking?",
+        3,
+    ),
+    _q(
+        "child-voice-issues",
+        "shouts_or_harsh_sounds",
+        "Does your child frequently shout, scream, or make harsh sounds while playing?",
+        4,
+    ),
+    _q(
+        "child-voice-issues",
+        "unusual_voice_over_2_weeks",
+        "Has the unusual voice quality continued for more than two weeks?",
+        5,
+    ),
+    _q(
+        "child-voice-issues",
+        "unusually_nasal_when_well",
+        "When your child isn't sick, do they still sound unusually nasal or as though their nose is blocked?",
+        6,
+    ),
+    # 5. Pediatric Feeding, Swallowing & Hearing Responsiveness
+    _q(
+        "child-feeding-swallowing-issues",
+        "cough_choke_gag_eating",
+        "Does your child cough, choke, or gag while eating or drinking, especially with liquids?",
+        1,
+        is_entry=True,
+    ),
+    _q(
+        "child-feeding-swallowing-issues",
+        "food_spill_lips_or_nose",
+        "Does food or liquid spill from your child's lips or come through the nose while swallowing?",
+        2,
+    ),
+    _q(
+        "child-feeding-swallowing-issues",
+        "meals_over_30_40_minutes",
+        "Do your child's usual meals often take more than 30 to 40 minutes to finish?",
+        3,
+    ),
     # 1. Hearing Difficulty
     _q("child-hearing-difficulty-screen", "not_respond_called_behind", "Does your child not respond when called from behind?", 1, is_entry=True),
     _q("child-hearing-difficulty-screen", "asks_to_repeat_often", "Does your child ask you to repeat often?", 2),
@@ -302,6 +450,33 @@ _SPEECH_TESTS = [
     },
 ]
 
+_CHILD_SPEECH_LANGUAGE_TESTS = [
+    {
+        "test_code": "ALD",
+        "test_name": "Assessment of Language Development (ALD)",
+        "reason_text": "Checks understanding and use of language against age-expected milestones.",
+        "display_order": 1,
+    },
+    {
+        "test_code": "REELS",
+        "test_name": "Receptive-Expressive Emergent Language Scale (REELS)",
+        "reason_text": "Assesses early receptive and expressive language in infants and toddlers.",
+        "display_order": 2,
+    },
+    {
+        "test_code": "COMDEALL",
+        "test_name": "COMDEALL Developmental Checklist",
+        "reason_text": "Screens broader developmental and communication milestones, often used when Autism Spectrum concerns are suspected.",
+        "display_order": 3,
+    },
+    {
+        "test_code": "LPT",
+        "test_name": "Linguistic Profile Test (LPT)",
+        "reason_text": "Profiles language across sounds, word forms, sentence structure, and meaning; used with older children as well.",
+        "display_order": 4,
+    },
+]
+
 _HEARING_TESTS = [
     {
         "test_code": "PTA",
@@ -328,8 +503,8 @@ CHILD_RULES: list[dict[str, Any]] = [
     _baseline(
         "child-speech-language-issues",
         "Baseline — child speech and language",
-        "Standard speech-language screen with hearing check.",
-        _SPEECH_TESTS,
+        "Language development assessments used for child speech and language concerns.",
+        _CHILD_SPEECH_LANGUAGE_TESTS,
     ),
     _baseline(
         "child-stuttering-fluency",

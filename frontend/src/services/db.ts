@@ -1,18 +1,8 @@
 /**
- * db.ts — Persistence service (Python FastAPI backend)
- *
- * Keeps the same function signatures used by AssessmentPage / ChatPanel
- * so UI code does not need to know about the transport.
- *
- * Data is stored in SQLite by the FastAPI service (see backend/fastapi).
+ * Persistence for assessments and guided Q&A chat — stored in Supabase.
  */
 
-import {
-  createAssessment,
-  createChatMessageApi,
-  createChatMessagesBulkApi,
-  createChatSessionApi,
-} from './api';
+import { getSupabase } from '@/lib/supabase';
 
 export interface AssessmentRow {
   full_name: string;
@@ -36,52 +26,77 @@ export interface ChatMessageRow {
   question_index?: number;
 }
 
-/**
- * Save an assessment form submission.
- * Returns the inserted row id, or null on error.
- */
 export async function saveAssessment(data: AssessmentRow): Promise<string | null> {
   try {
-    const row = await createAssessment(data);
-    return row.id ?? null;
+    const { data: row, error } = await getSupabase()
+      .from('assessments')
+      .insert({
+        full_name: data.full_name,
+        district: data.district,
+        age: data.age,
+        gender: data.gender,
+        phone: data.phone ?? null,
+        audience: data.audience ?? null,
+        routed_to: data.routed_to ?? null,
+      })
+      .select('id')
+      .single();
+
+    if (error) throw error;
+    return row?.id ?? null;
   } catch (err) {
     console.error('[db] saveAssessment error:', err instanceof Error ? err.message : err);
     return null;
   }
 }
 
-/**
- * Create a new chat Q&A session row.
- * Returns the session id, or null on error.
- */
 export async function createChatSession(data: ChatSessionRow): Promise<string | null> {
   try {
-    const row = await createChatSessionApi(data);
-    return row.id ?? null;
+    const { data: row, error } = await getSupabase()
+      .from('chat_sessions')
+      .insert({
+        topic_id: data.topic_id,
+        topic_title: data.topic_title,
+      })
+      .select('id')
+      .single();
+
+    if (error) throw error;
+    return row?.id ?? null;
   } catch (err) {
     console.error('[db] createChatSession error:', err instanceof Error ? err.message : err);
     return null;
   }
 }
 
-/**
- * Append a single message to an existing chat session.
- */
 export async function saveChatMessage(data: ChatMessageRow): Promise<void> {
   try {
-    await createChatMessageApi(data);
+    const { error } = await getSupabase().from('chat_messages').insert({
+      session_id: data.session_id,
+      role: data.role,
+      message: data.message,
+      question_index: data.question_index ?? null,
+    });
+    if (error) throw error;
   } catch (err) {
     console.error('[db] saveChatMessage error:', err instanceof Error ? err.message : err);
   }
 }
 
-/**
- * Bulk-save multiple messages to a session (used to flush at session end).
- */
 export async function saveChatMessages(messages: ChatMessageRow[]): Promise<void> {
   if (messages.length === 0) return;
   try {
-    await createChatMessagesBulkApi(messages);
+    const { error } = await getSupabase()
+      .from('chat_messages')
+      .insert(
+        messages.map((m) => ({
+          session_id: m.session_id,
+          role: m.role,
+          message: m.message,
+          question_index: m.question_index ?? null,
+        })),
+      );
+    if (error) throw error;
   } catch (err) {
     console.error('[db] saveChatMessages error:', err instanceof Error ? err.message : err);
   }

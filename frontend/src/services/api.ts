@@ -19,6 +19,7 @@ export interface ChatApiResponse {
   response: string;
   followups: string[];
   matched_keywords: string[];
+  source?: 'rag' | 'rag_extract' | 'keyword';
 }
 
 export interface HearingProblem {

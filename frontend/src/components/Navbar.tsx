@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Menu, X, Sparkles, LogIn } from 'lucide-react';
+import { Menu, X, Sparkles } from 'lucide-react';
 import { Logo } from './ui/Logo';
 import { LinkButton } from './ui/Button';
 
@@ -73,23 +73,6 @@ export function Navbar() {
             <Sparkles size={15} />
             Take Test
           </LinkButton>
-          <LinkButton
-            to="/login"
-            variant="secondary"
-            size="sm"
-            className="hidden sm:inline-flex"
-          >
-            <LogIn size={15} />
-            Login
-          </LinkButton>
-          <LinkButton
-            to="/admin/login"
-            variant="ghost"
-            size="sm"
-            className="hidden sm:inline-flex text-slate-600"
-          >
-            Admin
-          </LinkButton>
 
           <button
             type="button"
@@ -130,17 +113,10 @@ export function Navbar() {
                   </NavLink>
                 </li>
               ))}
-              <li className="pt-2 space-y-2">
+              <li className="pt-2">
                 <LinkButton to="/register/relationship" className="w-full" aria-label="Take Test">
                   <Sparkles size={16} />
                   Take Test
-                </LinkButton>
-                <LinkButton to="/login" variant="secondary" className="w-full" aria-label="Login">
-                  <LogIn size={16} />
-                  Login
-                </LinkButton>
-                <LinkButton to="/admin/login" variant="ghost" className="w-full" aria-label="Admin login">
-                  Admin login
                 </LinkButton>
               </li>
             </ul>

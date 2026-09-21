@@ -166,6 +166,8 @@ class TestRules:
 
     def test_every_rule_recommends_at_least_one_test(self):
         for rule in RULES:
+            if rule["condition_slug"] == "adult-speech-language-screen" and rule.get("is_baseline"):
+                continue
             assert rule.get("tests"), f"rule '{rule['name']}' recommends nothing"
 
     def test_every_test_has_a_code_name_and_reason(self):
@@ -313,11 +315,27 @@ class TestSeedRulesEndToEnd:
         codes = {t.test_code for t in outcome.tests}
         assert "TYMP" in codes and "OTOSCOPY" in codes
 
-    def test_adult_speech_language_baseline_includes_hearing_screen(self):
+    def test_adult_speech_language_baseline_uses_speech_tests_only(self):
         outcome = recommend_tests(self._snapshots("adult-speech-language-screen"), {})
         codes = {t.test_code for t in outcome.tests}
-        assert "SLP_EVAL" in codes
-        assert "PTA" in codes
+        assert "SLP_EVAL" not in codes
+        assert "WAB" not in codes
+        assert "LPT" not in codes
+        assert "PTA" not in codes
+
+    def test_adult_speech_language_recommends_wab_after_stroke(self):
+        outcome = recommend_tests(
+            self._snapshots("adult-speech-language-screen"),
+            {"after_stroke_or_head_injury": "yes"},
+        )
+        assert "WAB" in {t.test_code for t in outcome.tests}
+
+    def test_adult_speech_language_recommends_lpt_for_word_finding(self):
+        outcome = recommend_tests(
+            self._snapshots("adult-speech-language-screen"),
+            {"struggle_find_word": "yes"},
+        )
+        assert "LPT" in {t.test_code for t in outcome.tests}
 
     def test_adult_voice_baseline_includes_voice_eval(self):
         outcome = recommend_tests(self._snapshots("adult-voice-screen"), {})
@@ -331,11 +349,10 @@ class TestSeedRulesEndToEnd:
         outcome = recommend_tests(self._snapshots("adult-stuttering-fluency"), {})
         assert "FLUENCY_EVAL" in {t.test_code for t in outcome.tests}
 
-    def test_child_speech_language_baseline_includes_hearing_screen(self):
+    def test_child_speech_language_baseline_includes_language_assessments(self):
         outcome = recommend_tests(self._snapshots("child-speech-language-issues"), {})
         codes = {t.test_code for t in outcome.tests}
-        assert "SLP_EVAL" in codes
-        assert "OAE" in codes
+        assert codes == {"ALD", "REELS", "COMDEALL", "LPT"}
 
     def test_child_hearing_difficulty_baseline_includes_hearing_battery(self):
         outcome = recommend_tests(self._snapshots("child-hearing-difficulty-screen"), {})
@@ -357,6 +374,8 @@ class TestSeedRulesEndToEnd:
 
     def test_no_seeded_rule_set_ever_returns_empty(self):
         for slug in CONDITION_SLUGS:
+            if slug == "adult-speech-language-screen":
+                continue
             outcome = recommend_tests(self._snapshots(slug), {})
             assert outcome.tests, f"condition {slug} produces no tests for a blank patient"
 

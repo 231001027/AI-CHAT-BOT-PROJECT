@@ -2,11 +2,23 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Send, Bot, User, Sparkles, RotateCcw, WifiOff, Ear, BellRing, CircleDashed, Activity, Baby, CheckCircle2, ClipboardList, FlaskConical, ShieldCheck, Volume2, EarOff, Headphones, Gauge, Stethoscope } from 'lucide-react';
+import { Send, User, Sparkles, RotateCcw, WifiOff, Ear, BellRing, CircleDashed, Activity, Baby, CheckCircle2, ClipboardList, FlaskConical, ShieldCheck, Volume2, EarOff, Headphones, Gauge, Stethoscope } from 'lucide-react';
+
+const ASSISTANT_PHOTO = '/assistant.png';
 import { sendChatMessage } from '../../services/api';
-import { getQASession, getQAAnswerOptions } from '../../services/qaSession';
-import { specialTests, generalRecommendations } from '../../data/hearingData';
+import { getQASession, getQAAnswerOptions, getQARecommendedTests } from '../../services/qaSession';
+import { specialTests, generalRecommendations, adultSpeechSections } from '../../data/hearingData';
+import { childSpeechCategories } from '../../data/childData';
 import { createChatSession, saveChatMessage as dbSaveMessage } from '../../services/db';
+
+const SPEECH_TOPIC_IDS = new Set([
+  ...adultSpeechSections.map((s) => s.id),
+  ...childSpeechCategories.map((s) => s.id),
+]);
+
+function isSpeechTopic(topicId: string | undefined): boolean {
+  return Boolean(topicId && SPEECH_TOPIC_IDS.has(topicId));
+}
 
 const TAKE_TEST_PATH = '/register/relationship';
 
@@ -279,6 +291,9 @@ export function ChatPanel({ messages, setMessages, className, compact = false, q
     qaSession && lastQAMsg?.qaSession && !qaSummaryMsg && !typing
       ? getQAAnswerOptions(qaSession, lastQAMsg.qaSession.questionIndex)
       : null;
+  const speechSummary = isSpeechTopic(qaTopicId);
+  const qaAnswers = messages.filter((m) => m.role === 'user').map((m) => m.text);
+  const recommendedTests = qaSession ? getQARecommendedTests(qaSession, qaAnswers) : [];
 
   return (
     <div className={`flex flex-col min-h-0 ${className ?? ''}`}>
@@ -317,16 +332,20 @@ export function ChatPanel({ messages, setMessages, className, compact = false, q
               transition={{ duration: 0.25 }}
               className={`flex gap-2.5 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}
             >
-              <span
-                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-                  m.role === 'bot'
-                    ? 'bg-gradient-to-br from-brand-500 to-purple-500 text-white'
-                    : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-200'
-                }`}
-                aria-hidden="true"
-              >
-                {m.role === 'bot' ? <Bot size={16} /> : <User size={16} />}
-              </span>
+              {m.role === 'bot' ? (
+                <img
+                  src={ASSISTANT_PHOTO}
+                  alt=""
+                  className="h-8 w-8 shrink-0 rounded-full bg-white object-contain object-center ring-1 ring-brand-200"
+                />
+              ) : (
+                <span
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-200"
+                  aria-hidden="true"
+                >
+                  <User size={16} />
+                </span>
+              )}
 
               <div className={m.role === 'user' ? 'max-w-[80%] items-end' : 'flex-1 min-w-0'}>
                 {/* Message bubble */}
@@ -357,7 +376,7 @@ export function ChatPanel({ messages, setMessages, className, compact = false, q
                       </p>
                     </div>
                     <ul className="px-4 py-3 space-y-1.5">
-                      {qaSession.tests.map((t) => (
+                      {recommendedTests.map((t) => (
                         <li key={t} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-200">
                           <CheckCircle2 size={14} className="mt-0.5 shrink-0 text-green-500" />
                           {t}
@@ -368,64 +387,72 @@ export function ChatPanel({ messages, setMessages, className, compact = false, q
                       <p className="text-xs text-slate-500 dark:text-slate-400 italic">{qaSession.whatItHelps}</p>
                     </div>
 
-                    {/* ── Special Tests (Non-Speech) ── */}
-                    <div className="border-t border-slate-100 dark:border-slate-700">
-                      <div className="bg-brand-600 px-4 py-2">
-                        <p className="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-1.5">
-                          <FlaskConical size={12} /> Special Tests (Non-Speech)
-                        </p>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-3">
-                        {specialTests.filter(t => ['ABR','MLR','LLR','P300','P500'].includes(t.code)).map((t) => (
-                          <div key={t.code} className="rounded-lg bg-slate-50 dark:bg-slate-700/50 p-2.5">
-                            <p className="text-xs font-bold text-slate-800 dark:text-slate-100">{t.code}</p>
-                            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">{t.name}</p>
-                            <p className="text-[10px] text-slate-600 dark:text-slate-300 mt-1 leading-tight">{t.description}</p>
+                    {!speechSummary && (
+                      <>
+                        {/* ── Special Tests (Non-Speech) ── */}
+                        <div className="border-t border-slate-100 dark:border-slate-700">
+                          <div className="bg-brand-600 px-4 py-2">
+                            <p className="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-1.5">
+                              <FlaskConical size={12} /> Special Tests (Non-Speech)
+                            </p>
                           </div>
-                        ))}
-                      </div>
-                    </div>
+                          <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-3">
+                            {specialTests.filter(t => ['ABR','MLR','LLR','P300','P500'].includes(t.code)).map((t) => (
+                              <div key={t.code} className="rounded-lg bg-slate-50 dark:bg-slate-700/50 p-2.5">
+                                <p className="text-xs font-bold text-slate-800 dark:text-slate-100">{t.code}</p>
+                                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">{t.name}</p>
+                                <p className="text-[10px] text-slate-600 dark:text-slate-300 mt-1 leading-tight">{t.description}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
 
-                    {/* ── Special Speech Audiometry Tests ── */}
-                    <div className="border-t border-slate-100 dark:border-slate-700">
-                      <div className="bg-purple-600 px-4 py-2">
-                        <p className="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-1.5">
-                          <FlaskConical size={12} /> Special Speech Audiometry Tests
-                        </p>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-4">
-                        {specialTests.filter(t => ['SRT','WRS','PB Test','SPIN'].includes(t.code)).map((t) => (
-                          <div key={t.code} className="rounded-lg bg-slate-50 dark:bg-slate-700/50 p-2.5">
-                            <p className="text-xs font-bold text-slate-800 dark:text-slate-100">{t.code}</p>
-                            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">{t.name}</p>
-                            <p className="text-[10px] text-slate-600 dark:text-slate-300 mt-1 leading-tight">{t.description}</p>
+                        {/* ── Special Speech Audiometry Tests ── */}
+                        <div className="border-t border-slate-100 dark:border-slate-700">
+                          <div className="bg-purple-600 px-4 py-2">
+                            <p className="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-1.5">
+                              <FlaskConical size={12} /> Special Speech Audiometry Tests
+                            </p>
                           </div>
-                        ))}
-                      </div>
-                    </div>
+                          <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-4">
+                            {specialTests.filter(t => ['SRT','WRS','PB Test','SPIN'].includes(t.code)).map((t) => (
+                              <div key={t.code} className="rounded-lg bg-slate-50 dark:bg-slate-700/50 p-2.5">
+                                <p className="text-xs font-bold text-slate-800 dark:text-slate-100">{t.code}</p>
+                                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">{t.name}</p>
+                                <p className="text-[10px] text-slate-600 dark:text-slate-300 mt-1 leading-tight">{t.description}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
 
-                    {/* ── General Recommendations ── */}
-                    <div className="border-t border-slate-100 dark:border-slate-700">
-                      <div className="bg-gradient-to-r from-slate-700 to-slate-800 px-4 py-2">
-                        <p className="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-1.5">
-                          <ShieldCheck size={12} /> General Recommendations
-                        </p>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-3">
-                        {generalRecommendations.map((r) => (
-                          <div key={r.title} className="flex items-center gap-2 rounded-lg bg-slate-50 dark:bg-slate-700/50 p-2.5">
-                            <r.icon size={14} className="shrink-0 text-brand-500" />
-                            <p className="text-[11px] font-medium text-slate-700 dark:text-slate-200 leading-tight">{r.title}</p>
+                        {/* ── General Recommendations ── */}
+                        <div className="border-t border-slate-100 dark:border-slate-700">
+                          <div className="bg-gradient-to-r from-slate-700 to-slate-800 px-4 py-2">
+                            <p className="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-1.5">
+                              <ShieldCheck size={12} /> General Recommendations
+                            </p>
                           </div>
-                        ))}
-                      </div>
-                    </div>
+                          <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-3">
+                            {generalRecommendations.map((r) => (
+                              <div key={r.title} className="flex items-center gap-2 rounded-lg bg-slate-50 dark:bg-slate-700/50 p-2.5">
+                                <r.icon size={14} className="shrink-0 text-brand-500" />
+                                <p className="text-[11px] font-medium text-slate-700 dark:text-slate-200 leading-tight">{r.title}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
 
                     {/* ── Next step ── */}
                     <div className="border-t border-slate-100 dark:border-slate-700 bg-brand-50 dark:bg-brand-900/20 px-4 py-3 flex items-center gap-2">
                       <CheckCircle2 size={15} className="text-brand-600 dark:text-brand-300 shrink-0" />
                       <p className="text-xs font-semibold text-brand-700 dark:text-brand-300">
-                        Please consult an Audiologist / ENT for proper evaluation and advice.
+                        {speechSummary
+                          ? qaTopicId?.includes('voice') || qaTopicId?.includes('swallow')
+                            ? 'Please consult a Speech-Language Pathologist / ENT for proper evaluation and advice.'
+                            : 'Please consult a Speech-Language Pathologist for proper evaluation and advice.'
+                          : 'Please consult an Audiologist / ENT for proper evaluation and advice.'}
                       </p>
                     </div>
                   </motion.div>
@@ -491,9 +518,11 @@ export function ChatPanel({ messages, setMessages, className, compact = false, q
         {/* Typing indicator */}
         {typing && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-purple-500 text-white">
-              <Bot size={16} />
-            </span>
+            <img
+              src={ASSISTANT_PHOTO}
+              alt=""
+              className="h-8 w-8 rounded-full bg-white object-contain object-center ring-1 ring-brand-200"
+            />
             <div className="rounded-2xl rounded-tl-sm bg-white border border-slate-200 dark:bg-slate-800 dark:border-slate-700 px-4 py-3">
               <div className="flex items-center gap-1">
                 {[0, 1, 2].map((i) => (

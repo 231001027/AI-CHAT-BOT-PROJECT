@@ -195,6 +195,36 @@ async def retrieve(
     )
 
 
+async def retrieve_for_message(message: str) -> list[RetrievedChunk]:
+    """
+    Retrieve grounding chunks for the public AI assistant.
+
+    Uses the visitor's message as the query with no test-tag filter so general
+    departmental guidance can surface alongside test-specific documents.
+    """
+    settings = get_settings()
+    embedder = get_embedding_service()
+    if embedder is None:
+        return []
+
+    query = message.strip()
+    if not query:
+        return []
+
+    try:
+        vector = await embedder.embed_query(query)
+    except Exception as exc:
+        logger.warning("Assistant query embedding failed (%s); falling back", exc)
+        return []
+
+    return await get_vector_store().search(
+        vector,
+        limit=settings.rag_top_k,
+        min_score=settings.rag_min_score,
+        test_tags=None,
+    )
+
+
 async def _generate(system_prompt: str, user_prompt: str) -> Optional[str]:
     """Call the configured LLM (Anthropic or Gemini). Returns None on failure."""
     from app.services.ai.llm import generate_text

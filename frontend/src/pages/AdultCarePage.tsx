@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -163,6 +163,7 @@ function CategorySection({
   categories,
   onOpen,
   muted = false,
+  children,
 }: {
   id: string;
   eyebrow: string;
@@ -171,6 +172,7 @@ function CategorySection({
   categories: AdultSection[];
   onOpen: (id: string) => void;
   muted?: boolean;
+  children?: ReactNode;
 }) {
   return (
     <section
@@ -208,7 +210,7 @@ function CategorySection({
                       {s.title}
                     </p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                      5 questions · Yes / No / Not sure
+                      {s.commonSigns.length} questions · Yes / No / Not sure
                     </p>
                   </div>
                   <ArrowRight size={16} className="shrink-0 text-slate-400" />
@@ -217,6 +219,7 @@ function CategorySection({
             );
           })}
         </div>
+        {children}
       </div>
     </section>
   );

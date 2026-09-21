@@ -7,7 +7,6 @@ import {
   Baby,
   ShieldCheck,
   ArrowRight,
-  CheckCircle2,
   Star,
   Users,
   Activity,
@@ -51,59 +50,65 @@ function Hero() {
       <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-brand-500/10 blur-3xl" aria-hidden="true" />
       <div className="absolute -left-24 top-40 h-72 w-72 rounded-full bg-purple-500/10 blur-3xl" aria-hidden="true" />
 
-      <div className="container-page relative max-w-3xl py-16 lg:py-24">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <span className="chip bg-white text-brand-700 border border-brand-100 shadow-soft">
-            <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-            AI-powered audiology and speech Care Services
-          </span>
-          <div className="mt-5 flex flex-col gap-5 sm:flex-row sm:items-center">
+      <div className="container-page relative py-12 lg:py-20">
+        <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-10 xl:gap-16">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col items-center lg:items-start"
+          >
+            <div className="flex w-full max-w-[20rem] flex-col lg:max-w-[24rem]">
+              <Link to="/ai-assistant" className="block w-full" aria-label="Talk to AI">
+                <img
+                  src="/assistant.png"
+                  alt="NIEPMD AI assistant"
+                  className="h-auto w-full max-h-[26rem] object-contain object-bottom drop-shadow-xl lg:max-h-[32rem]"
+                />
+              </Link>
+              <span className="chip mt-4 w-full justify-center rounded-xl px-3 py-2 text-center leading-snug bg-white text-brand-700 border border-brand-100 shadow-soft">
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-green-500 animate-pulse" />
+                AI assistance for Speech, Hearing and Communication
+              </span>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="min-w-0 text-left"
+          >
             <img
               src="/niepmd-logo.png"
               alt="NIEPMD logo"
-              className="h-20 w-auto shrink-0 object-contain sm:h-24 lg:h-28"
+              className="h-16 w-auto object-contain sm:h-20"
             />
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 leading-[1.15]">
+            <h1 className="mt-4 max-w-xl text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
               Welcome to{' '}
               <span className="bg-gradient-to-r from-brand-600 via-brand-500 to-purple-500 bg-clip-text text-transparent">
                 NIEPMD
               </span>
-              <br />
-              <span className="whitespace-nowrap bg-gradient-to-r from-brand-600 via-brand-500 to-purple-500 bg-clip-text text-transparent">
-                Audiology and Speech Department
+              <span className="mt-1 block bg-gradient-to-r from-brand-600 via-brand-500 to-purple-500 bg-clip-text text-transparent">
+                Department of Speech, Hearing and Communication
               </span>
             </h1>
-          </div>
-          <p className="mt-5 text-lg sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
-            An AI-powered hearing Take Test assistant helping children and adults identify
-            hearing-related concerns.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <LinkButton to="/register/relationship" size="lg" aria-label="Take Test">
-              <Sparkles size={18} />
-              Take Test
-            </LinkButton>
-            <LinkButton to="/ai-assistant" variant="secondary" size="lg" aria-label="Talk to AI">
-              <MessageSquareHeart size={18} />
-              Talk to AI
-            </LinkButton>
-          </div>
-          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-slate-500 dark:text-slate-400">
-            <span className="inline-flex items-center gap-2">
-              <CheckCircle2 size={16} className="text-green-500" /> No sign-up required
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <CheckCircle2 size={16} className="text-green-500" /> Private &amp; secure
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <CheckCircle2 size={16} className="text-green-500" /> Works on any device
-            </span>
-          </div>
-        </motion.div>
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-slate-600 dark:text-slate-300 sm:text-xl">
+              An AI-powered hearing Take Test assistant helping children and adults identify
+              hearing-related concerns.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <LinkButton to="/register/relationship" size="lg" aria-label="Take Test">
+                <Sparkles size={18} />
+                Take Test
+              </LinkButton>
+              <LinkButton to="/ai-assistant" variant="secondary" size="lg" aria-label="Talk to AI">
+                <MessageSquareHeart size={18} />
+                Talk to AI
+              </LinkButton>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
@@ -116,7 +121,7 @@ function FeaturesSection() {
         center
         eyebrow="Why NIEPMD Audiology"
         title="Care that listens first"
-        description="Four principles guide every Take Test and every conversation at NIEPMD Audiology and Speech Department."
+        description="Four principles guide every Take Test and every conversation at NIEPMD Department of Speech, Hearing and Communication."
       />
       <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {features.map((f, i) => (

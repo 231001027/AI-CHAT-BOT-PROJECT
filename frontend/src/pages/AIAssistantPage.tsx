@@ -127,9 +127,11 @@ export function AIAssistantPage() {
               style={{ height: 'calc(100vh - 220px)', minHeight: '520px' }}
             >
               <div className="flex items-center gap-3 bg-gradient-to-r from-brand-600 to-purple-600 px-5 py-3.5 text-white">
-                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/20">
-                  <Bot size={18} />
-                </span>
+                <img
+                  src="/assistant.png"
+                  alt="NIEPMD AI assistant"
+                  className="h-9 w-9 rounded-full bg-white object-contain object-center ring-2 ring-white/40"
+                />
                 <div className="flex-1">
                   <p className="text-sm font-semibold leading-none">NIEPMD Audiology and Speech</p>
                   <p className="mt-1 text-xs text-white/80 flex items-center gap-1.5">

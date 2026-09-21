@@ -592,6 +592,7 @@ async def seed_clinical_flow(session: AsyncSession) -> None:
         pending_branches: list[tuple[QuestionOption, str, str]] = []
         question_ids: dict[tuple[str, str], uuid.UUID] = {}
         added_questions = 0
+        refreshed_questions = 0
         for item in QUESTIONS:
             condition_slug = item["condition_slug"]
             condition_id = condition_ids.get(condition_slug)
@@ -604,7 +605,27 @@ async def seed_clinical_flow(session: AsyncSession) -> None:
                 )
             )
             if existing is not None:
+                existing.text = item["text"]
+                existing.display_order = item["display_order"]
+                existing.is_entry = item.get("is_entry", False)
                 question_ids[(condition_slug, item["key"])] = existing.id
+                # Keep option labels/values in sync with the authored seed.
+                await session.execute(
+                    delete(QuestionOption).where(QuestionOption.question_id == existing.id)
+                )
+                for order, option in enumerate(item.get("options", []), start=1):
+                    row = QuestionOption(
+                        id=uuid.uuid4(),
+                        question_id=existing.id,
+                        label=option["label"],
+                        value=option["value"],
+                        display_order=option.get("display_order", order),
+                        is_terminal=option.get("terminal", False),
+                    )
+                    session.add(row)
+                    if branch := option.get("branch"):
+                        pending_branches.append((row, condition_slug, branch))
+                refreshed_questions += 1
                 continue
             question = Question(
                 id=uuid.uuid4(),
@@ -637,6 +658,36 @@ async def seed_clinical_flow(session: AsyncSession) -> None:
                 option_row.next_question_id = target_id
         if added_questions:
             print(f"Question: added {added_questions} rows for new conditions")
+        if refreshed_questions:
+            print(f"Question: refreshed text/options on {refreshed_questions} existing rows")
+
+        # Drop authored questions that were replaced or removed from the seed.
+        desired_keys_by_condition: dict[str, set[str]] = {}
+        for item in QUESTIONS:
+            desired_keys_by_condition.setdefault(item["condition_slug"], set()).add(item["key"])
+        removed_orphans = 0
+        for condition_slug, desired_keys in desired_keys_by_condition.items():
+            condition_id = condition_ids.get(condition_slug)
+            if condition_id is None:
+                continue
+            existing_rows = (
+                await session.execute(select(Question).where(Question.condition_id == condition_id))
+            ).scalars().all()
+            for question in existing_rows:
+                if question.key not in desired_keys:
+                    await session.delete(question)
+                    removed_orphans += 1
+        if removed_orphans:
+            print(f"Question: removed {removed_orphans} obsolete rows no longer in seed")
+
+    retired_keys = {"include_wab_assessment", "include_lpt_assessment"}
+    retired_questions = (
+        await session.execute(select(Question).where(Question.key.in_(retired_keys)))
+    ).scalars().all()
+    for question in retired_questions:
+        await session.delete(question)
+    if retired_questions:
+        print(f"Question: removed {len(retired_questions)} retired WAB/LPT prompt rows")
 
     rule_count = await session.scalar(select(func.count()).select_from(ClinicalRule))
     if not rule_count:
@@ -686,6 +737,7 @@ async def seed_clinical_flow(session: AsyncSession) -> None:
             row.slug: row for row in (await session.execute(select(Condition))).scalars().all()
         }
         rules_added = 0
+        rules_refreshed = 0
         for item in RULES:
             condition = conditions_by_slug.get(item["condition_slug"])
             if condition is None:
@@ -700,6 +752,25 @@ async def seed_clinical_flow(session: AsyncSession) -> None:
                 # Keep category alignment if the condition moved.
                 if existing.category_id != condition.category_id:
                     existing.category_id = condition.category_id
+                existing.description = item.get("description", "")
+                existing.priority = item.get("priority", 0)
+                existing.is_baseline = item.get("is_baseline", False)
+                existing.rule_definition = item.get("rule_definition") or {}
+                await session.execute(
+                    delete(RuleRecommendedTest).where(RuleRecommendedTest.rule_id == existing.id)
+                )
+                for test in item.get("tests", []):
+                    session.add(
+                        RuleRecommendedTest(
+                            id=uuid.uuid4(),
+                            rule_id=existing.id,
+                            test_code=test["test_code"].upper(),
+                            test_name=test["test_name"],
+                            reason_text=test.get("reason_text", ""),
+                            display_order=test.get("display_order", 0),
+                        )
+                    )
+                rules_refreshed += 1
                 continue
             rule = ClinicalRule(
                 id=uuid.uuid4(),
@@ -726,6 +797,8 @@ async def seed_clinical_flow(session: AsyncSession) -> None:
                 )
         if rules_added:
             print(f"ClinicalRule: added {rules_added} rows for new conditions")
+        if rules_refreshed:
+            print(f"ClinicalRule: refreshed recommended tests on {rules_refreshed} existing rules")
 
     await session.commit()
 
