@@ -2,12 +2,11 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import {
-  api,
   ApiError,
+  sessionsApi,
   type Option,
   type Question,
   type SessionState,
-  type SessionSummary,
 } from '../../lib/api';
 import { useSessionStore } from '../../store/session';
 import { ProgressStepper } from '../../components/shared/ProgressStepper';
@@ -35,13 +34,9 @@ export function QuestionnairePage() {
         setError(null);
         let next: SessionState;
         if (sessionId) {
-          next = await api.get<SessionState>(`/api/sessions/${sessionId}`, false);
+          next = await sessionsApi.get(sessionId);
         } else {
-          next = await api.post<SessionState>(
-            '/api/sessions',
-            { patient_id: patient.id, condition_id: condition.id },
-            false,
-          );
+          next = await sessionsApi.start(patient.id, condition.id);
           if (!cancelled) setSessionId(next.session_id);
         }
         if (!cancelled) setState(next);
@@ -63,17 +58,10 @@ export function QuestionnairePage() {
     setSubmitting(true);
     setError(null);
     try {
-      const next = await api.post<SessionState>(
-        `/api/sessions/${state.session_id}/answers`,
-        { question_id: question.id, option_id: option.id },
-        false,
-      );
+      const next = await sessionsApi.answer(state.session_id, question.id, option.id);
       setState(next);
       if (next.is_complete) {
-        const summary = await api.get<SessionSummary>(
-          `/api/sessions/${state.session_id}/summary`,
-          false,
-        );
+        const summary = await sessionsApi.summary(state.session_id);
         setAnswers(summary.answers || []);
         navigate('/chat/summary');
       }
