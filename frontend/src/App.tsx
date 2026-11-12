@@ -15,6 +15,8 @@ import { QuestionnairePage } from './pages/patient/QuestionnairePage';
 import { SummaryPage } from './pages/patient/SummaryPage';
 import { RecommendationsPage } from './pages/results/RecommendationsPage';
 import { ReportPage } from './pages/results/ReportPage';
+import { LoginPage } from './pages/LoginPage';
+import { GenerateFormPage } from './pages/GenerateFormPage';
 
 if (typeof document !== 'undefined') {
   document.documentElement.classList.remove('dark');
@@ -33,7 +35,8 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/take-test" element={<Navigate to="/register/relationship" replace />} />
-          <Route path="/login" element={<Navigate to="/" replace />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/generate-form" element={<GenerateFormPage />} />
           <Route path="/signup" element={<Navigate to="/" replace />} />
           <Route path="/register/signin" element={<Navigate to="/register/relationship" replace />} />
           <Route path="/register/signup" element={<Navigate to="/register/relationship" replace />} />

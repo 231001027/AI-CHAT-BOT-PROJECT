@@ -1,0 +1,11 @@
+.tools
+backend
+docs
+.git
+**/.venv
+**/node_modules
+**/__pycache__
+**/.pytest_cache
+backend/data
+*.tar.gz
+qdrant

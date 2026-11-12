@@ -4,7 +4,6 @@ import {
   Mail,
   MapPin,
   Heart,
-  Siren,
   ArrowUpRight,
 } from 'lucide-react';
 import { Logo } from './ui/Logo';
@@ -72,27 +71,41 @@ export function Footer() {
           </div>
 
           <div className="lg:col-span-4">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Emergency Contact</h3>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Contact</h3>
             <div className="mt-4 rounded-2xl bg-gradient-to-br from-brand-50 to-purple-50 dark:from-brand-900/30 dark:to-purple-900/30 border border-brand-100 dark:border-brand-900/50 p-5">
               <div className="flex items-center gap-2 text-brand-700 dark:text-brand-300">
-                <Siren size={18} />
-                <span className="text-sm font-semibold">24/7 Hearing Helpline</span>
+                <Phone size={18} />
+                <span className="text-sm font-semibold">Department contact</span>
               </div>
-              <a href="tel:+911800123456" className="mt-2 block text-2xl font-bold text-slate-900 dark:text-white">
-                1800-123-456
+              <a href="tel:18004250345" className="mt-2 block text-2xl font-bold text-slate-900 dark:text-white">
+                1800 425 0345
               </a>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                Also: 044-27472113 / 27472046 / 27472104
+              </p>
               <ul className="mt-4 space-y-2 text-sm text-slate-600 dark:text-slate-300">
-                <li className="flex items-center gap-2">
-                  <Mail size={15} className="text-brand-500" />
-                  care@niepmd.nic.in
+                <li className="flex items-start gap-2">
+                  <Mail size={15} className="mt-0.5 shrink-0 text-brand-500" />
+                  <span>
+                    <a href="mailto:niepmdhrd@gmail.com" className="hover:text-brand-700 dark:hover:text-brand-300">niepmdhrd@gmail.com</a>
+                    {' / '}
+                    <a href="mailto:niepmdshc@gmail.com" className="hover:text-brand-700 dark:hover:text-brand-300">niepmdshc@gmail.com</a>
+                  </span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <MapPin size={15} className="text-brand-500" />
-                  Audiology Wing, City Care Hospital
+                  <MapPin size={15} className="shrink-0 text-brand-500" />
+                  <a
+                    href="https://maps.app.goo.gl/npi2aQb6SotMfLdy9"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-brand-700 dark:hover:text-brand-300"
+                  >
+                    View location on Google Maps
+                  </a>
                 </li>
-                <li className="flex items-center gap-2">
-                  <Phone size={15} className="text-brand-500" />
-                  Mon–Sat, 9 AM – 7 PM
+                <li className="flex items-start gap-2">
+                  <Phone size={15} className="mt-0.5 shrink-0 text-brand-500" />
+                  <span>Mon–Fri 9 AM – 5 PM · Sat 9 AM – 1 PM · Sun closed</span>
                 </li>
               </ul>
             </div>

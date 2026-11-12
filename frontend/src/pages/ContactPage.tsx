@@ -8,7 +8,7 @@ import {
   Send,
   CheckCircle2,
   MessageSquareHeart,
-  Siren,
+  Info,
   User,
 } from 'lucide-react';
 import { PageHero } from '../components/ui/PageHero';
@@ -16,11 +16,17 @@ import { Reveal } from '../components/ui/Reveal';
 import { AccentIcon } from '../components/ui/AccentIcon';
 import { submitContactForm } from '../services/api';
 
-const contactCards = [
-  { icon: Phone, title: 'Call us', value: '1800-123-456', sub: 'Mon–Sat, 9 AM – 7 PM', accent: 'blue' as const },
-  { icon: Mail, title: 'Email us', value: 'care@niepmd.nic.in', sub: 'We reply within 24 hours', accent: 'purple' as const },
-  { icon: MapPin, title: 'Visit us', value: 'Audiology Wing, City Care Hospital', sub: 'Central District, City 001', accent: 'green' as const },
+const PHONES = [
+  { label: '044-27472113', href: 'tel:+914427472113' },
+  { label: '044-27472046', href: 'tel:+914427472046' },
+  { label: '044-27472104', href: 'tel:+914427472104' },
 ];
+const TOLL_FREE = { label: '1800 425 0345', href: 'tel:18004250345' };
+const EMAILS = [
+  { label: 'niepmdhrd@gmail.com', href: 'mailto:niepmdhrd@gmail.com' },
+  { label: 'niepmdshc@gmail.com', href: 'mailto:niepmdshc@gmail.com' },
+];
+const MAP_URL = 'https://maps.app.goo.gl/npi2aQb6SotMfLdy9';
 
 export function ContactPage() {
   const [sent, setSent] = useState(false);
@@ -57,7 +63,7 @@ export function ContactPage() {
       <PageHero
         eyebrow="Contact"
         title="We're here to listen"
-        description="Have a question about hearing care, our pathways, or partnering with NIEPMD Audiology Department? Reach out — we'd love to help."
+        description="Have a question about hearing care, our pathways, or partnering with NIEPMD Department of Speech, Hearing and Communication? Reach out — we'd love to help."
         crumbs={[{ label: 'Home', to: '/' }, { label: 'Contact' }]}
         accent="blue"
         icon={<MessageSquareHeart size={13} />}
@@ -65,16 +71,60 @@ export function ContactPage() {
 
       <section className="container-page py-14 sm:py-20">
         <div className="grid gap-8 lg:grid-cols-3">
-          {contactCards.map((c, i) => (
-            <Reveal key={c.title} delay={i * 0.08}>
-              <div className="card h-full p-6 hover:shadow-card-hover transition-shadow">
-                <AccentIcon icon={c.icon} accent={c.accent} size="lg" />
-                <h3 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">{c.title}</h3>
-                <p className="mt-1 text-sm font-medium text-slate-800 dark:text-slate-100">{c.value}</p>
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{c.sub}</p>
-              </div>
-            </Reveal>
-          ))}
+          <Reveal delay={0}>
+            <div className="card h-full p-6 hover:shadow-card-hover transition-shadow">
+              <AccentIcon icon={Phone} accent="blue" size="lg" />
+              <h3 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">Call us</h3>
+              <ul className="mt-2 space-y-1">
+                {PHONES.map((phone) => (
+                  <li key={phone.href}>
+                    <a href={phone.href} className="text-sm font-medium text-slate-800 hover:text-brand-700 dark:text-slate-100 dark:hover:text-brand-300">
+                      {phone.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                Toll free:{' '}
+                <a href={TOLL_FREE.href} className="font-medium text-brand-700 hover:underline dark:text-brand-300">
+                  {TOLL_FREE.label}
+                </a>
+              </p>
+            </div>
+          </Reveal>
+
+          <Reveal delay={0.08}>
+            <div className="card h-full p-6 hover:shadow-card-hover transition-shadow">
+              <AccentIcon icon={Mail} accent="purple" size="lg" />
+              <h3 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">Email us</h3>
+              <ul className="mt-2 space-y-1">
+                {EMAILS.map((email) => (
+                  <li key={email.href}>
+                    <a href={email.href} className="break-all text-sm font-medium text-slate-800 hover:text-brand-700 dark:text-slate-100 dark:hover:text-brand-300">
+                      {email.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">We reply during working hours</p>
+            </div>
+          </Reveal>
+
+          <Reveal delay={0.16}>
+            <div className="card h-full p-6 hover:shadow-card-hover transition-shadow">
+              <AccentIcon icon={MapPin} accent="green" size="lg" />
+              <h3 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">Visit us</h3>
+              <a
+                href={MAP_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 inline-block text-sm font-medium text-brand-700 hover:underline dark:text-brand-300"
+              >
+                Open location in Google Maps
+              </a>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">NIEPMD Department of Speech, Hearing and Communication</p>
+            </div>
+          </Reveal>
         </div>
 
         <div className="mt-12 grid gap-8 lg:grid-cols-5">
@@ -160,14 +210,15 @@ export function ContactPage() {
             <div className="space-y-4">
               <div className="card p-6">
                 <div className="flex items-center gap-2 text-brand-700 dark:text-brand-300">
-                  <Siren size={18} />
-                  <h3 className="text-sm font-semibold">Emergency hearing helpline</h3>
+                  <Info size={18} />
+                  <h3 className="text-sm font-semibold">Emergency contact</h3>
                 </div>
-                <a href="tel:+911800123456" className="mt-2 block text-2xl font-bold text-slate-900 dark:text-white">
-                  1800-123-456
-                </a>
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                  For sudden hearing loss or severe ear pain, call immediately.
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                  No emergency contact is available. Please use the numbers above during working hours, or call the toll-free line{' '}
+                  <a href={TOLL_FREE.href} className="font-semibold text-brand-700 hover:underline dark:text-brand-300">
+                    {TOLL_FREE.label}
+                  </a>
+                  .
                 </p>
               </div>
 
@@ -176,8 +227,8 @@ export function ContactPage() {
                   <Clock size={16} className="text-brand-500" /> Operating hours
                 </h3>
                 <ul className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
-                  <li className="flex items-center justify-between"><span>Monday – Friday</span><span className="font-medium">9 AM – 7 PM</span></li>
-                  <li className="flex items-center justify-between"><span>Saturday</span><span className="font-medium">10 AM – 4 PM</span></li>
+                  <li className="flex items-center justify-between"><span>Monday – Friday</span><span className="font-medium">9 AM – 5 PM</span></li>
+                  <li className="flex items-center justify-between"><span>Saturday</span><span className="font-medium">9 AM – 1 PM</span></li>
                   <li className="flex items-center justify-between"><span>Sunday</span><span className="font-medium text-slate-400">Closed</span></li>
                 </ul>
               </div>

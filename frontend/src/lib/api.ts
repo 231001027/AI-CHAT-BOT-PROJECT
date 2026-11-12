@@ -1,7 +1,16 @@
 /**
  * Typed fetch wrapper for the NIEPMD clinical API.
+ * When the FastAPI backend is not hosted (typical Vercel-only deploy), Take Test
+ * uses the embedded clinical snapshot in localClinical.ts.
  */
+import { localClinical } from '@/lib/localClinical';
+
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, '') || '';
+
+/** True on production builds with no API host — use embedded clinical engine. */
+export function useEmbeddedClinical(): boolean {
+  return Boolean(import.meta.env.PROD) && !API_BASE;
+}
 
 const TOKEN_KEY = 'niepmd_access_token';
 
@@ -258,49 +267,141 @@ export type TokenResponse = {
 };
 
 export const patientsApi = {
-  register: (body: Record<string, unknown>) =>
-    api.post<Patient>('/api/patients', body, false),
-  update: (patientId: string, body: Record<string, unknown>) =>
-    api.patch<Patient>(`/api/patients/${patientId}`, body, false),
+  register: async (body: Record<string, unknown>) => {
+    if (useEmbeddedClinical()) return localClinical.register(body);
+    try {
+      return await api.post<Patient>('/api/patients', body, false);
+    } catch (error) {
+      if (error instanceof ApiError && (error.status === 404 || error.status === 405)) {
+        return localClinical.register(body);
+      }
+      throw error;
+    }
+  },
+  update: async (patientId: string, body: Record<string, unknown>) => {
+    if (useEmbeddedClinical()) return localClinical.update(patientId, body);
+    try {
+      return await api.patch<Patient>(`/api/patients/${patientId}`, body, false);
+    } catch (error) {
+      if (error instanceof ApiError && (error.status === 404 || error.status === 405)) {
+        return localClinical.update(patientId, body);
+      }
+      throw error;
+    }
+  },
   signup: (body: Record<string, unknown>) =>
-    api.post<Patient>('/api/patients/signup', body, false),
+    useEmbeddedClinical()
+      ? Promise.resolve(localClinical.register(body))
+      : api.post<Patient>('/api/patients/signup', body, false),
   login: (body: { user_id: string; password: string }) =>
     api.post<Patient>('/api/patients/login', body, false),
 };
 
 export const catalogApi = {
-  categories: (flow_type?: FlowType, department?: ClinicalDepartment) => {
-    const params = new URLSearchParams();
-    if (flow_type) params.set('flow_type', flow_type);
-    if (department) params.set('department', department);
-    const qs = params.toString();
-    return api.get<Category[]>(`/api/categories${qs ? `?${qs}` : ''}`, false);
+  categories: async (flow_type?: FlowType, department?: ClinicalDepartment) => {
+    if (useEmbeddedClinical()) return localClinical.categories(flow_type, department);
+    try {
+      const params = new URLSearchParams();
+      if (flow_type) params.set('flow_type', flow_type);
+      if (department) params.set('department', department);
+      const qs = params.toString();
+      return await api.get<Category[]>(`/api/categories${qs ? `?${qs}` : ''}`, false);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 404) {
+        return localClinical.categories(flow_type, department);
+      }
+      throw error;
+    }
   },
-  conditions: (categoryId: string) =>
-    api.get<Condition[]>(`/api/conditions?category_id=${categoryId}`, false),
+  conditions: async (categoryId: string) => {
+    if (useEmbeddedClinical()) return localClinical.conditions(categoryId);
+    try {
+      return await api.get<Condition[]>(`/api/conditions?category_id=${categoryId}`, false);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 404) {
+        return localClinical.conditions(categoryId);
+      }
+      throw error;
+    }
+  },
   questions: (conditionId: string) =>
     api.get<Question[]>(`/api/questions?condition_id=${conditionId}`, false),
 };
 
 export const sessionsApi = {
-  start: (patient_id: string, condition_id: string) =>
-    api.post<SessionState>('/api/sessions', { patient_id, condition_id }, false),
-  answer: (sessionId: string, question_id: string, option_id: string) =>
-    api.post<SessionState>(
-      `/api/sessions/${sessionId}/answers`,
-      { question_id, option_id },
-      false,
-    ),
-  get: (sessionId: string) => api.get<SessionState>(`/api/sessions/${sessionId}`, false),
-  summary: (sessionId: string) =>
-    api.get<SessionSummary>(`/api/sessions/${sessionId}/summary`, false),
+  start: async (patient_id: string, condition_id: string) => {
+    if (useEmbeddedClinical()) return localClinical.startSession(patient_id, condition_id);
+    try {
+      return await api.post<SessionState>('/api/sessions', { patient_id, condition_id }, false);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 404) {
+        return localClinical.startSession(patient_id, condition_id);
+      }
+      throw error;
+    }
+  },
+  answer: async (sessionId: string, question_id: string, option_id: string) => {
+    if (useEmbeddedClinical()) return localClinical.answer(sessionId, question_id, option_id);
+    try {
+      return await api.post<SessionState>(
+        `/api/sessions/${sessionId}/answers`,
+        { question_id, option_id },
+        false,
+      );
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 404) {
+        return localClinical.answer(sessionId, question_id, option_id);
+      }
+      throw error;
+    }
+  },
+  get: async (sessionId: string) => {
+    if (useEmbeddedClinical()) return localClinical.getSession(sessionId);
+    try {
+      return await api.get<SessionState>(`/api/sessions/${sessionId}`, false);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 404) {
+        return localClinical.getSession(sessionId);
+      }
+      throw error;
+    }
+  },
+  summary: async (sessionId: string) => {
+    if (useEmbeddedClinical()) return localClinical.summary(sessionId);
+    try {
+      return await api.get<SessionSummary>(`/api/sessions/${sessionId}/summary`, false);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 404) {
+        return localClinical.summary(sessionId);
+      }
+      throw error;
+    }
+  },
 };
 
 export const recommendationsApi = {
-  evaluate: (session_id: string) =>
-    api.post<Recommendation>('/api/recommendations/evaluate', { session_id }, false),
-  get: (sessionId: string) =>
-    api.get<Recommendation>(`/api/recommendations/${sessionId}`, false),
+  evaluate: async (session_id: string) => {
+    if (useEmbeddedClinical()) return localClinical.evaluate(session_id);
+    try {
+      return await api.post<Recommendation>('/api/recommendations/evaluate', { session_id }, false);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 404) {
+        return localClinical.evaluate(session_id);
+      }
+      throw error;
+    }
+  },
+  get: async (sessionId: string) => {
+    if (useEmbeddedClinical()) return localClinical.getRecommendation(sessionId);
+    try {
+      return await api.get<Recommendation>(`/api/recommendations/${sessionId}`, false);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 404) {
+        return localClinical.getRecommendation(sessionId);
+      }
+      throw error;
+    }
+  },
 };
 
 export const aiApi = {
@@ -313,8 +414,21 @@ export const aiApi = {
 };
 
 export const reportsApi = {
-  generate: (session_id: string) =>
-    api.post<Report>('/api/reports/generate', { session_id, include_explanations: true }, false),
+  generate: async (session_id: string) => {
+    if (useEmbeddedClinical()) return localClinical.generateReport(session_id);
+    try {
+      return await api.post<Report>(
+        '/api/reports/generate',
+        { session_id, include_explanations: true },
+        false,
+      );
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 404) {
+        return localClinical.generateReport(session_id);
+      }
+      throw error;
+    }
+  },
   downloadUrl: (reportId: string) => api.downloadUrl(`/api/reports/${reportId}/download`),
 };
 

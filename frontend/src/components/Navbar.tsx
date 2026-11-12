@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Menu, X, Sparkles } from 'lucide-react';
+import { LogIn, LogOut, Menu, X, Sparkles } from 'lucide-react';
 import { Logo } from './ui/Logo';
-import { LinkButton } from './ui/Button';
+import { Button, LinkButton } from './ui/Button';
+import { getSignedInStaff, signOutStaff, type StaffAccount } from '@/lib/staffAuth';
 
 const navItems = [
   { label: 'Home', to: '/' },
@@ -15,6 +16,7 @@ const navItems = [
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [staff, setStaff] = useState<StaffAccount | null>(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -25,6 +27,17 @@ export function Navbar() {
   }, []);
 
   useEffect(() => setOpen(false), [location.pathname]);
+
+  useEffect(() => {
+    const sync = () => setStaff(getSignedInStaff());
+    sync();
+    window.addEventListener('niepmd-staff-auth', sync);
+    window.addEventListener('storage', sync);
+    return () => {
+      window.removeEventListener('niepmd-staff-auth', sync);
+      window.removeEventListener('storage', sync);
+    };
+  }, []);
 
   return (
     <header
@@ -38,7 +51,7 @@ export function Navbar() {
         <Logo />
 
         <ul className="hidden lg:flex items-center gap-1">
-          {navItems.map((item) => (
+          {(staff ? [...navItems, { label: 'Generate Form', to: '/generate-form' }] : navItems).map((item) => (
             <li key={item.to}>
               <NavLink
                 to={item.to}
@@ -69,6 +82,20 @@ export function Navbar() {
         </ul>
 
         <div className="flex items-center gap-2">
+          {staff ? (
+            <div className="hidden items-center gap-2 sm:flex">
+              <span className="max-w-[10rem] truncate text-xs font-medium text-slate-600">{staff.name}</span>
+              <Button type="button" variant="outline" size="sm" onClick={signOutStaff}>
+                <LogOut size={14} />
+                Log out
+              </Button>
+            </div>
+          ) : (
+            <LinkButton to="/login" variant="outline" size="sm" className="hidden sm:inline-flex">
+              <LogIn size={15} />
+              Login
+            </LinkButton>
+          )}
           <LinkButton to="/register/relationship" size="sm" className="hidden sm:inline-flex">
             <Sparkles size={15} />
             Take Test
@@ -96,7 +123,7 @@ export function Navbar() {
             className="lg:hidden overflow-hidden border-t border-slate-200 bg-white"
           >
             <ul className="container-page py-4 flex flex-col gap-1">
-              {navItems.map((item) => (
+              {(staff ? [...navItems, { label: 'Generate Form', to: '/generate-form' }] : navItems).map((item) => (
                 <li key={item.to}>
                   <NavLink
                     to={item.to}
@@ -113,6 +140,19 @@ export function Navbar() {
                   </NavLink>
                 </li>
               ))}
+              <li className="pt-2">
+                {staff ? (
+                  <Button type="button" variant="outline" className="w-full" onClick={signOutStaff}>
+                    <LogOut size={16} />
+                    Log out
+                  </Button>
+                ) : (
+                  <LinkButton to="/login" variant="outline" className="w-full">
+                    <LogIn size={16} />
+                    Login
+                  </LinkButton>
+                )}
+              </li>
               <li className="pt-2">
                 <LinkButton to="/register/relationship" className="w-full" aria-label="Take Test">
                   <Sparkles size={16} />

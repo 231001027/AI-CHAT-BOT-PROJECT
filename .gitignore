@@ -41,3 +41,6 @@ backend/data/**/.DS_Store
 
 # Node backend modules
 backend/node/node_modules/
+.vercel
+.env*
+.tools/
